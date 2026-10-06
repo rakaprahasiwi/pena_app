@@ -1,0 +1,6 @@
+{
+  "summary":  "Rencana implementasi aplikasi web sistem pencatatan keluar-masuk ATK kantor Kejaksaan Negeri (Kejari) dengan fitur self-service kiosk pengambilan barang berkamera, CRUD master barang dan barang masuk, notifikasi audio-visual stok menipis, dashboard admin, dan ekspor laporan bulanan Excel serta cetak PDF resmi ber-kop dinas.",
+  "updatedAt":  "2026-10-06T08:44:51.264727785Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
