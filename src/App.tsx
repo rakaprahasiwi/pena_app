@@ -316,6 +316,7 @@ export default function App() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSuccessLogin={handleAdminLoginSuccess}
+        correctPassword={satker?.passwordAdmin}
       />
 
       {/* Low Stock Alert Modal */}

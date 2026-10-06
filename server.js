@@ -109,12 +109,14 @@ app.get('/api/satker', async (req, res) => {
 });
 
 app.post('/api/satker', async (req, res) => {
-    const data = req.body;
-    await db.query(
-        'UPDATE pengaturan_satker SET namaKejari=?, instansiInduk=?, alamat=?, telepon=?, kota=?, namaKasubbag=?, nipKasubbag=?, jabatanKasubbag=?, namaPengelola=?, nipPengelola=?, jabatanPengelola=? WHERE id=1',
-        [data.namaKejari, data.instansiInduk, data.alamat, data.telepon, data.kota, data.namaKasubbag, data.nipKasubbag, data.jabatanKasubbag, data.namaPengelola, data.nipPengelola, data.jabatanPengelola]
-    );
-    res.json({ success: true });
+  const data = req.body;
+  await db.query(
+    'UPDATE pengaturan_satker SET namaKejari=?, instansiInduk=?, alamat=?, telepon=?, kota=?, namaKasubbag=?, nipKasubbag=?, jabatanKasubbag=?, namaPengelola=?, nipPengelola=?, jabatanPengelola=?, passwordAdmin=? WHERE id=1', 
+    // ^ TAMBAHKAN passwordAdmin=? DI SINI
+    [data.namaKejari, data.instansiInduk, data.alamat, data.telepon, data.kota, data.namaKasubbag, data.nipKasubbag, data.jabatanKasubbag, data.namaPengelola, data.nipPengelola, data.jabatanPengelola, data.passwordAdmin] 
+    // ^ TAMBAHKAN data.passwordAdmin DI SINI
+  );
+  res.json({ success: true });
 });
 
 app.listen(3001, () => console.log('API Server berjalan di port 3001'));

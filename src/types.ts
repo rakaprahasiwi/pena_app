@@ -78,6 +78,7 @@ export interface PengaturanSatker {
   namaPengelola: string;
   nipPengelola: string;
   jabatanPengelola: string;
+  passwordAdmin?: string;
 }
 
 export interface MutasiBarang {

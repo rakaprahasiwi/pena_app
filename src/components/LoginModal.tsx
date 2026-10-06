@@ -11,9 +11,10 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccessLogin: () => void;
+  correctPassword?: string;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccessLogin }) => {
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccessLogin, correctPassword }) => {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState<string | null>(null);
@@ -22,13 +23,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const validPassword = correctPassword || 'admin123';
     // Verification against default admin credentials
-    if (username.trim() === 'admin' && (password === 'admin123' || password === 'kejaksaan')) {
+    if (username.trim() === 'admin' && password === validPassword) {
       setError(null);
       onSuccessLogin();
       onClose();
     } else {
-      setError('Username atau kata sandi tidak valid. Gunakan admin / admin123.');
+      setError('Username atau kata sandi tidak valid.');
     }
   };
 

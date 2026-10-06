@@ -36,6 +36,7 @@ import {
   Eye,
   Building,
   UserCheck,
+  Lock
 } from 'lucide-react';
 import { playAlertChime } from '../utils/audioAlert';
 import { calculateMonthlyMutation, exportMonthlyReportToExcel, NAMA_BULAN } from '../utils/exportUtils';
@@ -1281,7 +1282,28 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </div>
               </div>
             </div>
-
+            {/*SEKSI KEAMANAN AKSES INI */}
+            <div className="space-y-4 pt-4 border-t border-slate-200">
+              <h4 className="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+                <Lock className="w-4 h-4 text-emerald-800" />
+                <span>Keamanan Akses Dashboard</span>
+              </h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-rose-50 rounded-xl border border-rose-100">
+                <div className="space-y-1.5">
+                  <label className="font-semibold text-slate-700">Password Administrator Baru *</label>
+                  <input
+                    type="text"
+                    required
+                    value={satkerForm.passwordAdmin || ''}
+                    onChange={(e) => setSatkerForm({ ...satkerForm, passwordAdmin: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-mono font-bold text-rose-800"
+                    placeholder="Masukkan password admin baru"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">Username login default adalah <strong>admin</strong></p>
+                </div>
+              </div>
+            </div>
+            {/* AKHIR SEKSI KEAMANAN AKSES */}
             {/* Pejabat Penandatangan */}
             <div className="space-y-4 pt-4 border-t border-slate-200">
               <h4 className="font-bold text-sm text-slate-800 flex items-center gap-1.5">
