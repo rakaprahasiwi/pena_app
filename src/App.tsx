@@ -9,6 +9,7 @@ import {
   TransaksiMasuk,
   TransaksiKeluar,
   PengaturanSatker,
+  AdminUser,
 } from './types';
 import {
   getStoredItems,
@@ -42,10 +43,12 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<'kiosk' | 'admin'>('kiosk');
 
   // Admin authentication state
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('sim_atk_admin_logged_in') === 'true';
+  const [loggedInUser, setLoggedInUser] = useState<AdminUser | null>(() => {
+    const saved = localStorage.getItem('sim_atk_current_user');
+    return saved ? JSON.parse(saved) : null;
   });
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const isAdminLoggedIn = loggedInUser !== null;
 
   // Audio mute state
   const [isAudioMuted, setIsAudioMutedState] = useState<boolean>(() => getAudioMuted());
@@ -108,23 +111,19 @@ export default function App() {
   };
 
   // Admin Login success
-  const handleAdminLoginSuccess = () => {
-    setIsAdminLoggedIn(true);
-    localStorage.setItem('sim_atk_admin_logged_in', 'true');
+  const handleAdminLoginSuccess = (user: AdminUser) => {
+    setLoggedInUser(user);
+    localStorage.setItem('sim_atk_current_user', JSON.stringify(user));
     setCurrentTab('admin');
-    showToast('success', 'Berhasil login sebagai Administrator BMN Kejaksaan.');
-    // Check if there are low stock items upon admin login
-    if (lowStockItems.length > 0 && !isAudioMuted) {
-      playAlertChime();
-    }
+    showToast('success', `Berhasil login sebagai ${user.namaLengkap} (${user.role}).`);
   };
 
   // Admin Logout
   const handleAdminLogout = () => {
-    setIsAdminLoggedIn(false);
-    localStorage.removeItem('sim_atk_admin_logged_in');
+    setLoggedInUser(null);
+    localStorage.removeItem('sim_atk_current_user');
     setCurrentTab('kiosk');
-    showToast('alert', 'Telah keluar dari sesi Administrator.');
+    showToast('alert', 'Telah keluar dari sesi Dashboard.');
   };
 
   // Handle Taking ATK (Public Kiosk)
@@ -265,6 +264,7 @@ export default function App() {
             transaksiMasuk={transaksiMasuk}
             transaksiKeluar={transaksiKeluar}
             satker={satker}
+            currentUser={loggedInUser}
             onSaveItem={handleSaveItem}
             onDeleteItem={handleDeleteItem}
             onAddMasuk={handleAddMasuk}
@@ -315,8 +315,7 @@ export default function App() {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onSuccessLogin={handleAdminLoginSuccess}
-        correctPassword={satker?.passwordAdmin}
+        onSuccessLogin={handleAdminLoginSuccess} // Sekarang menerima user object
       />
 
       {/* Low Stock Alert Modal */}

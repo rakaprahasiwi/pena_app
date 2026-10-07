@@ -109,14 +109,84 @@ app.get('/api/satker', async (req, res) => {
 });
 
 app.post('/api/satker', async (req, res) => {
-  const data = req.body;
-  await db.query(
-    'UPDATE pengaturan_satker SET namaKejari=?, instansiInduk=?, alamat=?, telepon=?, kota=?, namaKasubbag=?, nipKasubbag=?, jabatanKasubbag=?, namaPengelola=?, nipPengelola=?, jabatanPengelola=?, passwordAdmin=? WHERE id=1', 
-    // ^ TAMBAHKAN passwordAdmin=? DI SINI
-    [data.namaKejari, data.instansiInduk, data.alamat, data.telepon, data.kota, data.namaKasubbag, data.nipKasubbag, data.jabatanKasubbag, data.namaPengelola, data.nipPengelola, data.jabatanPengelola, data.passwordAdmin] 
-    // ^ TAMBAHKAN data.passwordAdmin DI SINI
-  );
-  res.json({ success: true });
+    const data = req.body;
+    await db.query(
+        'UPDATE pengaturan_satker SET namaKejari=?, instansiInduk=?, alamat=?, telepon=?, kota=?, namaKasubbag=?, nipKasubbag=?, jabatanKasubbag=?, namaPengelola=?, nipPengelola=?, jabatanPengelola=?, passwordAdmin=? WHERE id=1',
+        // ^ TAMBAHKAN passwordAdmin=? DI SINI
+        [data.namaKejari, data.instansiInduk, data.alamat, data.telepon, data.kota, data.namaKasubbag, data.nipKasubbag, data.jabatanKasubbag, data.namaPengelola, data.nipPengelola, data.jabatanPengelola, data.passwordAdmin]
+        // ^ TAMBAHKAN data.passwordAdmin DI SINI
+    );
+    res.json({ success: true });
+});
+
+// --- API LOGIN ADMIN ---
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const [users] = await db.query('SELECT id, username, role, namaLengkap, status FROM admin_users WHERE username = ? AND password = ? AND status = "aktif"', [username, password]);
+
+        if (users.length > 0) {
+            res.json({ success: true, user: users[0] });
+        } else {
+            res.json({ success: false, message: 'Username atau password salah, atau akun dinonaktifkan.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- API MANAJEMEN ADMIN (Hanya Superadmin) ---
+app.get('/api/admins', async (req, res) => {
+    try {
+        // Password tidak dikembalikan ke frontend untuk alasan keamanan
+        const [rows] = await db.query('SELECT id, username, role, namaLengkap, status, createdAt FROM admin_users ORDER BY role DESC, createdAt ASC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/admins', async (req, res) => {
+    const { username, password, role, namaLengkap, status } = req.body;
+    try {
+        await db.query(
+            'INSERT INTO admin_users (username, password, role, namaLengkap, status) VALUES (?,?,?,?,?)',
+            [username, password, role, namaLengkap, status || 'aktif']
+        );
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.code === 'ER_DUP_ENTRY' ? 'Username sudah digunakan' : error.message });
+    }
+});
+
+app.put('/api/admins/:id', async (req, res) => {
+    const { id } = req.params;
+    const { username, role, namaLengkap, status, password } = req.body;
+    try {
+        if (password && password.trim() !== '') {
+            await db.query(
+                'UPDATE admin_users SET username=?, password=?, role=?, namaLengkap=?, status=? WHERE id=?',
+                [username, password, role, namaLengkap, status, id]
+            );
+        } else {
+            await db.query(
+                'UPDATE admin_users SET username=?, role=?, namaLengkap=?, status=? WHERE id=?',
+                [username, role, namaLengkap, status, id]
+            );
+        }
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.delete('/api/admins/:id', async (req, res) => {
+    try {
+        await db.query('DELETE FROM admin_users WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 app.listen(3001, () => console.log('API Server berjalan di port 3001'));

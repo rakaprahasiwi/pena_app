@@ -78,7 +78,6 @@ export interface PengaturanSatker {
   namaPengelola: string;
   nipPengelola: string;
   jabatanPengelola: string;
-  passwordAdmin?: string;
 }
 
 export interface MutasiBarang {
@@ -88,4 +87,14 @@ export interface MutasiBarang {
   totalKeluar: number;
   stokAkhir: number;
   kondisi: string;
+}
+
+export interface AdminUser {
+  id: number;
+  username: string;
+  role: 'superadmin' | 'admin';
+  namaLengkap: string;
+  status: 'aktif' | 'nonaktif';
+  createdAt?: string;
+  password?: string; // Hanya digunakan saat form input/edit
 }

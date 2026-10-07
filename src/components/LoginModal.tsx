@@ -6,38 +6,54 @@
 import React, { useState } from 'react';
 import { KejaksaanLogo } from './KejaksaanLogo';
 import { Lock, User, KeyRound, AlertCircle, X, ShieldCheck } from 'lucide-react';
+import { AdminUser } from '../types';
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccessLogin: () => void;
-  correctPassword?: string;
+  onSuccessLogin: (user: AdminUser) => void;
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccessLogin, correctPassword }) => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSuccessLogin }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fillQuickDemo = () => {
+    // Mengisi otomatis dengan akun superadmin untuk mempermudah testing
+    setUsername('superadmin');
+    setPassword('superadmin123');
+    setError(null);
+  };
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validPassword = correctPassword || 'admin123';
-    // Verification against default admin credentials
-    if (username.trim() === 'admin' && password === validPassword) {
-      setError(null);
-      onSuccessLogin();
-      onClose();
-    } else {
-      setError('Username atau kata sandi tidak valid.');
-    }
-  };
+    setIsSubmitting(true);
 
-  const fillQuickDemo = () => {
-    setUsername('admin');
-    setPassword('admin123');
-    setError(null);
+    try {
+      const res = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setError(null);
+        onSuccessLogin(data.user);
+        onClose();
+        setPassword('');
+      } else {
+        setError(data.message || 'Username atau password salah.');
+      }
+    } catch (err) {
+      setError('Koneksi ke server gagal.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
