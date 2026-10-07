@@ -214,7 +214,7 @@ export default function App() {
 
   // Tampilkan loading screen sementara data MySQL ditarik
   if (isLoading || !satker) {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50">Memuat Sistem Database MySQL...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50">Memuat Sistem...</div>;
   }
 
   return (
