@@ -231,7 +231,7 @@ export default function App() {
         isAudioMuted={isAudioMuted}
         onToggleAudioMute={handleToggleAudioMute}
         satker={satker}
-        
+        currentUser={loggedInUser}
       />
 
       {/* Floating Toast Notification */}

@@ -6,7 +6,7 @@
 import React from 'react';
 import { KejaksaanLogo } from './KejaksaanLogo';
 import { Bell, Volume2, VolumeX, ShieldCheck, LogOut, ArrowRight, PackageOpen } from 'lucide-react';
-import { PengaturanSatker } from '../types';
+import { AdminUser, PengaturanSatker } from '../types';
 
 interface HeaderProps {
   currentTab: 'kiosk' | 'admin';
@@ -19,6 +19,7 @@ interface HeaderProps {
   isAudioMuted: boolean;
   onToggleAudioMute: () => void;
   satker: PengaturanSatker;
+  currentUser: AdminUser | null;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   isAudioMuted,
   onToggleAudioMute,
   satker,
+  currentUser
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-emerald-900/60 shadow-md text-white no-print">
@@ -60,11 +62,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={() => setCurrentTab('kiosk')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${
-                currentTab === 'kiosk'
-                  ? 'bg-emerald-700 text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
-              }`}
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${currentTab === 'kiosk'
+                ? 'bg-emerald-700 text-white shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+                }`}
             >
               <PackageOpen className="w-4 h-4" />
               <span>Kiosk Pengambilan ATK</span>
@@ -82,11 +83,10 @@ export const Header: React.FC<HeaderProps> = ({
                   onOpenLoginModal();
                 }
               }}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${
-                currentTab === 'admin'
-                  ? 'bg-amber-600 text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
-              }`}
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${currentTab === 'admin'
+                ? 'bg-amber-600 text-white shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
+                }`}
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Dashboard Admin</span>
@@ -121,11 +121,10 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenLowStockModal}
               title={`${lowStockCount} barang mencapai batas minimum stok`}
-              className={`relative p-2 rounded-lg transition-colors border ${
-                lowStockCount > 0
-                  ? 'text-rose-300 bg-rose-950/40 border-rose-800 hover:bg-rose-900/60'
-                  : 'text-slate-400 hover:text-white bg-slate-800/60 border-slate-700'
-              }`}
+              className={`relative p-2 rounded-lg transition-colors border ${lowStockCount > 0
+                ? 'text-rose-300 bg-rose-950/40 border-rose-800 hover:bg-rose-900/60'
+                : 'text-slate-400 hover:text-white bg-slate-800/60 border-slate-700'
+                }`}
             >
               <Bell className="w-4 h-4" />
               {lowStockCount > 0 && (
@@ -139,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
             {isAdminLoggedIn ? (
               <div className="flex items-center gap-2 pl-1 border-l border-slate-700">
                 <span className="hidden xl:inline text-xs text-emerald-300 font-medium truncate max-w-[120px]">
-                  Admin BMN
+                  {currentUser?.namaLengkap || "Admin"}
                 </span>
                 <button
                   type="button"
