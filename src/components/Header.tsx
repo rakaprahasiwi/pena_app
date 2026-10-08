@@ -43,14 +43,14 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="truncate">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-base sm:text-lg tracking-tight text-white whitespace-nowrap">
-                  SIM-ATK ADHYAKSA
+                  PENA
                 </span>
                 <span className="hidden md:inline text-xs text-amber-400 font-medium px-1.5 py-0.5 rounded bg-amber-400/10 border border-amber-400/20">
                   {satker.namaKejari}
                 </span>
               </div>
               <p className="text-[11px] text-emerald-300/80 truncate hidden sm:block">
-                Sistem Pencatatan Keluar-Masuk & Inventarisasi ATK Kantor
+                Sistem Pencatatan Inventarisasi ATK
               </p>
             </div>
           </div>
