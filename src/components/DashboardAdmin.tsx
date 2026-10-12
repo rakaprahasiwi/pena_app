@@ -80,7 +80,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   onDeleteItem,
   onAddMasuk,
   onSaveSatker,
-  onResetData,
   initialRestockItem,
   onClearInitialRestockItem,
   currentUser

@@ -288,14 +288,14 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-600/40">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Layanan Mandiri Pegawai Tanpa Login</span>
+              <span>Layanan PENA Kejari Batang</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Portal Pengambilan ATK Kantor
             </h1>
             <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
-              Silakan cari barang ATK yang dibutuhkan, isi data seksi/bidang pemohon, dan ambil foto
-              dokumentasi penerima untuk akuntabilitas Berita Acara Mutasi Barang Milik Negara (BMN).
+              Silahkan cari barang ATK yang dibutuhkan, isi data seksi/bidang pemohon, dan ambil foto
+              dokumentasi penerima untuk Akuntabilitas Berita Acara Mutasi Barang Milik Negara (BMN).
             </p>
           </div>
           <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-xl border border-emerald-600/30 backdrop-blur-sm shrink-0">
