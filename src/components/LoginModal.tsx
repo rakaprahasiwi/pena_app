@@ -72,10 +72,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
             <KejaksaanLogo size={48} />
           </div>
           <h3 className="font-extrabold text-base text-white tracking-wide">
-            LOGIN ADMINISTRATOR BMN
+            LOGIN ADMINISTRATOR PENA
           </h3>
           <p className="text-xs text-emerald-300/90 mt-1">
-            Pengelolaan Master ATK & Laporan Mutasi Dinas
+            Pengelolaan Master Sistem Pencatatan Inventarisasi ATK
           </p>
         </div>
 

@@ -231,6 +231,7 @@ export default function App() {
         isAudioMuted={isAudioMuted}
         onToggleAudioMute={handleToggleAudioMute}
         satker={satker}
+        currentUser={loggedInUser}
       />
 
       {/* Floating Toast Notification */}
@@ -302,11 +303,11 @@ export default function App() {
           <div className="flex items-center gap-2">
             <KejaksaanLogo size={24} />
             <span className="font-semibold text-slate-700">
-              SIM-ATK Kejaksaan Negeri · Subbagian Pembinaan
+              PENA kejaksan Negeri Batang · Bidang Pembinaan
             </span>
           </div>
           <p className="text-slate-400 text-[11px]">
-            Sistem Informasi Mutasi & Persediaan Barang Milik Negara (BMN)
+            Sistem Pencatatan Inventarisasi ATK
           </p>
         </div>
       </footer>
