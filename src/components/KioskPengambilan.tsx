@@ -53,8 +53,8 @@ const BIDANG_LIST: BidangKejaksaan[] = [
   'Seksi Tindak Pidana Khusus (Pidsus)',
   'Seksi Perdata dan Tata Usaha Negara (Datun)',
   'Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)',
-  'Kelompok Jabatan Fungsional',
-  'Pos Pelayanan Hukum & PTSP',
+  // 'Kelompok Jabatan Fungsional',
+  // 'Pos Pelayanan Hukum & PTSP',
 ];
 
 export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) => {
@@ -102,11 +102,6 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
     if (a.stok > 0 && b.stok <= 0) return -1;
     return 0; // Pertahankan urutan asli jika status stok sama
   });
-
-  // ... (Ganti mapping pada grid dari filteredItems menjadi sortedItems)
-  // <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-  //   {sortedItems.map((item) => { 
-  // ...
 
   // Start camera stream
   const startCamera = useCallback(async () => {
@@ -494,7 +489,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
                 <KejaksaanLogo size={32} />
                 <div>
                   <h3 className="text-base font-bold text-white">
-                    Formulir Pengambilan ATK Kantor
+                    Formulir Pengambilan ATK
                   </h3>
                   <p className="text-xs text-emerald-300">
                     {selectedItem.namaBarang} ({selectedItem.kodeBarang})
@@ -559,7 +554,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
                   <input
                     type="text"
                     required
-                    placeholder="Contoh: Budi Santoso, S.H."
+                    placeholder="Contoh: Galih Nur Hidayat, S.Ak."
                     value={namaPengambil}
                     onChange={(e) => setNamaPengambil(e.target.value)}
                     className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"
@@ -572,7 +567,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
                   </label>
                   <input
                     type="text"
-                    placeholder="Contoh: 19890123 201503 1 002"
+                    placeholder="Contoh: 20010517 202404 1 002"
                     value={nipPengambil}
                     onChange={(e) => setNipPengambil(e.target.value)}
                     className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-mono"
@@ -608,7 +603,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
                 <textarea
                   required
                   rows={2}
-                  placeholder="Contoh: Pemberkasan Perkara Pidana Umum Tahap II No. Reg: PDM-45/MLG/2026"
+                  placeholder="Contoh: Mengisi tinta printer Pembinaan"
                   value={keperluan}
                   onChange={(e) => setKeperluan(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"

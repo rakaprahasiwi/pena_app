@@ -20,13 +20,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fillQuickDemo = () => {
-    // Mengisi otomatis dengan akun superadmin untuk mempermudah testing
-    setUsername('superadmin');
-    setPassword('superadmin123');
-    setError(null);
-  };
-
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,21 +109,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
               className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"
               placeholder="••••••••"
             />
-          </div>
-
-          {/* Quick Demo Helper */}
-          <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-              <span>Akun Demo: <strong>admin</strong> / <strong>admin123</strong></span>
-            </div>
-            <button
-              type="button"
-              onClick={fillQuickDemo}
-              className="text-emerald-800 font-semibold hover:underline"
-            >
-              Isi Otomatis
-            </button>
           </div>
 
           <button

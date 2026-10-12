@@ -17,9 +17,9 @@ export type BidangKejaksaan =
   | 'Seksi Tindak Pidana Umum (Pidum)'
   | 'Seksi Tindak Pidana Khusus (Pidsus)'
   | 'Seksi Perdata dan Tata Usaha Negara (Datun)'
-  | 'Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)'
-  | 'Kelompok Jabatan Fungsional'
-  | 'Pos Pelayanan Hukum & PTSP';
+  | 'Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)';
+  // | 'Kelompok Jabatan Fungsional'
+  // | 'Pos Pelayanan Hukum & PTSP';
 
 export interface ItemATK {
   id: string;

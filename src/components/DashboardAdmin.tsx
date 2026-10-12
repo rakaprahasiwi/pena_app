@@ -387,7 +387,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               }`}
           >
             <Package className="w-4 h-4" />
-            <span>Master Data ATK (CRUD)</span>
+            <span>Master Data ATK</span>
             <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-200 tabular-nums">
               {items.length}
             </span>
@@ -402,7 +402,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               }`}
           >
             <ArrowDownToLine className="w-4 h-4 text-emerald-500" />
-            <span>Barang Masuk (Pengadaan)</span>
+            <span>Barang Masuk</span>
           </button>
 
           <button
@@ -518,8 +518,8 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   <span className="text-xs text-slate-500 font-medium">Batch Droping</span>
                 </div>
                 <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
-                  <span>Sumber Terbanyak:</span>
-                  <strong className="truncate max-w-[140px] text-slate-800">DIPA Rutin Satker</strong>
+                  <span>Status:</span>
+                  <strong className="truncate max-w-[140px] text-slate-800">Penambahan</strong>
                 </div>
               </div>
 
@@ -708,7 +708,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
         )
       }
 
-      {/* SUBTAB 2: MASTER DATA ATK (CRUD LENGKAP) */}
+      {/* SUBTAB 2: MASTER DATA ATK */}
       {
         activeSubTab === 'master' && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden space-y-4 p-5">
@@ -869,7 +869,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   <span>Form Input Barang Masuk (Restock)</span>
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Penambahan persediaan dari DIPA, droping Kejati, atau pengadaan rekanan
+                  Penambahan persediaan
                 </p>
               </div>
 
@@ -967,6 +967,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                     <tr>
+                      <th className="py-3 px-3 w-10 text-center">No</th>
                       <th className="py-2.5 px-3">Tanggal</th>
                       <th className="py-2.5 px-3">Nama Barang</th>
                       <th className="py-2.5 px-3 text-right">Jumlah Masuk</th>
@@ -974,10 +975,15 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200">
-                    {paginatedMasuk.map((t) => (
+                    {paginatedMasuk.map((t, idx) => (
                       <tr key={t.id} className="hover:bg-slate-50/80">
+                        <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
                         <td className="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
-                          {t.tanggal}
+                          {new Date(t.tanggal).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
                         </td>
                         <td className="py-2.5 px-3">
                           <span className="font-bold text-slate-900 block">{t.namaBarang}</span>
@@ -1020,6 +1026,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                   <tr>
+                    <th className="py-3 px-3 w-10 text-center">No</th>
                     <th className="py-3 px-3 text-center w-16">Foto</th>
                     <th className="py-3 px-3">Waktu & Tanggal</th>
                     <th className="py-3 px-4">Nama Pengambil & NIP</th>
@@ -1030,8 +1037,9 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                  {paginatedKeluar.map((tx) => (
+                  {paginatedKeluar.map((tx, idx) => (
                     <tr key={tx.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
                       {/* Foto Thumbnail */}
                       <td className="py-3 px-3 text-center">
                         <button
@@ -1253,7 +1261,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   Pengaturan Identitas Satuan Kerja & Pejabat Penandatangan
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Data ini akan tercetak otomatis pada Kop Surat, Berita Acara, dan Laporan Bulanan Resmi
+                  Data ini akan tercetak otomatis pada Kop Surat dan Laporan Bulanan
                 </p>
               </div>
               {satkerSavedNotice && (
@@ -1322,20 +1330,11 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </div>
               </div>
 
-              {/*SEKSI KEAMANAN AKSES INI */}
-              <div className="space-y-4 pt-4 border-t border-slate-200">
-                <h4 className="font-bold text-sm text-slate-800 flex items-center gap-1.5">
-                  <Lock className="w-4 h-4 text-emerald-800" />
-                  <span>Keamanan Akses Dashboard</span>
-                </h4>
-              </div>
-              {/* AKHIR SEKSI KEAMANAN AKSES */}
-
               {/* Pejabat Penandatangan */}
               <div className="space-y-4 pt-4 border-t border-slate-200">
                 <h4 className="font-bold text-sm text-slate-800 flex items-center gap-1.5">
                   <UserCheck className="w-4 h-4 text-emerald-800" />
-                  <span>Pejabat Penandatangan Laporan Mutasi BMN / ATK</span>
+                  <span>Pejabat Penandatangan Laporan Mutasi ATK</span>
                 </h4>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -1411,19 +1410,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                 <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm('Kembalikan semua data ke kondisi demo awal?')) {
-                      onResetData();
-                    }
-                  }}
-                  className="px-4 py-2 text-rose-700 hover:bg-rose-50 border border-rose-300 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset Data Demo ke Awal</span>
-                </button>
-
-                <button
                   type="submit"
                   className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-xs flex items-center gap-2 transition-colors"
                 >
@@ -1456,6 +1442,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                 <tr>
+                  <th className="py-3 px-3 w-10 text-center">No</th>
                   <th className="py-3 px-3">Username</th>
                   <th className="py-3 px-3">Nama Lengkap</th>
                   <th className="py-3 px-3">Level Akses</th>
@@ -1464,8 +1451,9 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </tr>
               </thead>
               <tbody>
-                {adminUsers.map(adm => (
+                {adminUsers.map((adm, idx) => (
                   <tr key={adm.id} className="border-b border-slate-100">
+                    <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
                     <td className="py-3 px-3 font-bold text-slate-800">{adm.username}</td>
                     <td className="py-3 px-3">{adm.namaLengkap}</td>
                     <td className="py-3 px-3">
