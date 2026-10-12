@@ -303,7 +303,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <KejaksaanLogo size={24} />
             <span className="font-semibold text-slate-700">
-              PENA kejaksan Negeri Batang · Bidang Pembinaan
+              PENA Kejaksan Negeri Batang · Bidang Pembinaan
             </span>
           </div>
           <p className="text-slate-400 text-[11px]">

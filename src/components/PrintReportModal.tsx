@@ -55,10 +55,10 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
             <Printer className="w-5 h-5 text-emerald-400" />
             <div>
               <h3 className="font-bold text-sm text-white">
-                Pratinjau Dokumen Cetak / Format PDF Resmi
+                Review Dokumen Cetak / Format PDF Resmi
               </h3>
               <p className="text-xs text-slate-400">
-                Format Berita Acara & Laporan Bulanan Mutasi ATK Dinas Kejaksaan RI
+                Laporan Bulanan Mutasi ATK Kejaksaan Negeri Batang
               </p>
             </div>
           </div>
@@ -138,8 +138,8 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                 <th className="border border-black py-2 px-3 text-left">NAMA BARANG / SPESIFIKASI</th>
                 <th className="border border-black py-2 px-2 w-16">SATUAN</th>
                 <th className="border border-black py-2 px-2 w-16">STOK AWAL</th>
-                <th className="border border-black py-2 px-2 w-16">MASUK (DIPA)</th>
-                <th className="border border-black py-2 px-2 w-16">KELUAR (PAKAI)</th>
+                <th className="border border-black py-2 px-2 w-16">MASUK</th>
+                <th className="border border-black py-2 px-2 w-16">KELUAR</th>
                 <th className="border border-black py-2 px-2 w-16">SISA AKHIR</th>
                 <th className="border border-black py-2 px-2 w-20">KONDISI</th>
               </tr>
@@ -206,7 +206,7 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
             <div className="space-y-1">
               <p className="font-normal text-gray-800">Mengetahui,</p>
               <p className="font-bold uppercase">{satker.jabatanKasubbag}</p>
-              <div className="h-20" /> {/* Space for signature & stamp */}
+              <div className="h-23" /> {/* Space for signature & stamp */}
               <p className="font-bold uppercase underline underline-offset-2">
                 {satker.namaKasubbag}
               </p>

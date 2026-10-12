@@ -173,8 +173,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [masukFormData, setMasukFormData] = useState({
     itemId: initialRestockItem ? initialRestockItem.id : items[0]?.id || '',
     jumlah: 10,
-    // sumberPengadaan: 'DIPA Pengadaan Rutin TA 2026',
-    // nomorDokumen: `BAST-ATK/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`,
     tanggal: new Date().toISOString().split('T')[0],
     dicatatOleh: satker.namaPengelola,
     keterangan: 'Penerimaan persediaan ATK kantor',
@@ -269,8 +267,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       kategori: targetItem.kategori,
       satuan: targetItem.satuan,
       jumlah: Number(masukFormData.jumlah),
-      // sumberPengadaan: masukFormData.sumberPengadaan.trim(),
-      // nomorDokumen: masukFormData.nomorDokumen.trim(),
       tanggal: masukFormData.tanggal,
       dicatatOleh: masukFormData.dicatatOleh.trim(),
       keterangan: masukFormData.keterangan.trim(),
@@ -433,7 +429,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               }`}
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Laporan Bulanan & Ekspor</span>
+            <span>Laporan Bulanan</span>
           </button>
 
           {/* Hanya tampilkan untuk Superadmin */}
@@ -912,30 +908,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-mono font-bold"
                   />
                 </div>
-
-                {/* <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Sumber Pengadaan / Asal Barang *</label>
-                  <input
-                    type="text"
-                    required
-                    value={masukFormData.sumberPengadaan}
-                    onChange={(e) => setMasukFormData({ ...masukFormData, sumberPengadaan: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-                    placeholder="DIPA Satker 2026 / Droping Kejati"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-700">Nomor Dokumen / SPK / BAST</label>
-                  <input
-                    type="text"
-                    value={masukFormData.nomorDokumen}
-                    onChange={(e) => setMasukFormData({ ...masukFormData, nomorDokumen: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none font-mono"
-                    placeholder="BAST-ATK/03/2026"
-                  />
-                </div> */}
-
                 <div className="space-y-1.5">
                   <label className="font-semibold text-slate-700">Tanggal Penerimaan *</label>
                   <input
@@ -998,8 +970,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                       <th className="py-2.5 px-3">Tanggal</th>
                       <th className="py-2.5 px-3">Nama Barang</th>
                       <th className="py-2.5 px-3 text-right">Jumlah Masuk</th>
-                      {/* <th className="py-2.5 px-3">Sumber / DIPA</th>
-                      <th className="py-2.5 px-3">No. Dokumen</th> */}
                       <th className="py-2.5 px-3">Penerima</th>
                     </tr>
                   </thead>
@@ -1016,8 +986,6 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-800 tabular-nums">
                           +{t.jumlah} {t.satuan}
                         </td>
-                        {/* <td className="py-2.5 px-3 text-slate-600">{t.sumberPengadaan}</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-500">{t.nomorDokumen || '-'}</td> */}
                         <td className="py-2.5 px-3 text-slate-600">{t.dicatatOleh}</td>
                       </tr>
                     ))}
@@ -1214,7 +1182,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg text-xs shadow-xs transition-colors whitespace-nowrap"
                 >
                   <Printer className="w-4 h-4 text-amber-400" />
-                  <span>Cetak / Pratinjau PDF</span>
+                  <span>Cetak PDF</span>
                 </button>
               </div>
             </div>
