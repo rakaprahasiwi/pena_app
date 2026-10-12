@@ -45,12 +45,12 @@ app.post('/api/masuk', async (req, res) => {
     const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
-        const { id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, sumberPengadaan, nomorDokumen, tanggal, dicatatOleh, keterangan } = req.body;
+        const { id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, tanggal, dicatatOleh, keterangan } = req.body;
 
         // Insert transaksi masuk
         await conn.query(
-            'INSERT INTO transaksi_masuk (id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, sumberPengadaan, nomorDokumen, tanggal, dicatatOleh, keterangan) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-            [id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, sumberPengadaan, nomorDokumen, tanggal, dicatatOleh, keterangan]
+            'INSERT INTO transaksi_masuk (id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, tanggal, dicatatOleh, keterangan) VALUES (?,?,?,?,?,?,?,?,?,?)',
+            [id, itemId, kodeBarang, namaBarang, kategori, satuan, jumlah, tanggal, dicatatOleh, keterangan]
         );
         // Tambah stok di master item
         await conn.query('UPDATE items SET stok = stok + ?, updatedAt = NOW() WHERE id = ?', [jumlah, itemId]);

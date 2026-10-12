@@ -42,8 +42,8 @@ export interface TransaksiMasuk {
   kategori: KategoriATK;
   satuan: string;
   jumlah: number;
-  sumberPengadaan: string; // misal: DIPA Satker 2026, Droping Kejati, Rekanan Pengadaan
-  nomorDokumen: string; // misal: SPK/04/BMN/2026, BAST/01/ATK/2026
+  // sumberPengadaan: string; // misal: DIPA Satker 2026, Droping Kejati, Rekanan Pengadaan
+  // nomorDokumen: string; // misal: SPK/04/BMN/2026, BAST/01/ATK/2026
   tanggal: string; // YYYY-MM-DD
   dicatatOleh: string;
   keterangan?: string;
