@@ -12,7 +12,7 @@ const db = mysql.createPool({
     host: 'localhost',
     user: 'root', // Sesuaikan user DB
     password: '', // Sesuaikan password DB
-    database: 'sim_atk_kejari'
+    database: 'pena_db'
 });
 
 // --- API MASTER ITEMS ---
