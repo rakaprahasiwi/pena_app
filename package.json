@@ -1,28 +1,28 @@
 {
-  "name": "react-example",
+  "name": "pena-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "server": "node server.js"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
-    "@tailwindcss/vite": "^4.3.3",
-    "@vitejs/plugin-react": "^6.1.1",
+    "@tailwindcss/postcss": "^4.3.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^4.22.3",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "mysql2": "^3.24.5",
+    "next": "^16.4.0",
+    "postcss": "^8.5.30",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "vite": "^8.3.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

@@ -326,6 +326,7 @@ export const INITIAL_KELUAR: TransaksiKeluar[] = [
 // Helper functions
 export function getStoredItems(): ItemATK[] {
   try {
+    if (typeof window === 'undefined') return INITIAL_ITEMS;
     const raw = localStorage.getItem(STORAGE_KEYS.ITEMS);
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(INITIAL_ITEMS));
@@ -339,6 +340,7 @@ export function getStoredItems(): ItemATK[] {
 
 export function saveStoredItems(items: ItemATK[]): void {
   try {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(items));
   } catch (e) {
     console.error('Failed to save items to localStorage:', e);
@@ -363,6 +365,7 @@ export function deleteStoredItem(id: string): void {
 
 export function getStoredTransaksiMasuk(): TransaksiMasuk[] {
   try {
+    if (typeof window === 'undefined') return INITIAL_MASUK;
     const raw = localStorage.getItem(STORAGE_KEYS.MASUK);
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.MASUK, JSON.stringify(INITIAL_MASUK));
@@ -377,7 +380,9 @@ export function getStoredTransaksiMasuk(): TransaksiMasuk[] {
 export function addStoredTransaksiMasuk(transaksi: TransaksiMasuk): void {
   const list = getStoredTransaksiMasuk();
   list.unshift(transaksi);
-  localStorage.setItem(STORAGE_KEYS.MASUK, JSON.stringify(list));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.MASUK, JSON.stringify(list));
+  }
 
   // Automatically increment current stock for that item
   const items = getStoredItems();
@@ -391,6 +396,7 @@ export function addStoredTransaksiMasuk(transaksi: TransaksiMasuk): void {
 
 export function getStoredTransaksiKeluar(): TransaksiKeluar[] {
   try {
+    if (typeof window === 'undefined') return INITIAL_KELUAR;
     const raw = localStorage.getItem(STORAGE_KEYS.KELUAR);
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.KELUAR, JSON.stringify(INITIAL_KELUAR));
@@ -427,7 +433,9 @@ export function addStoredTransaksiKeluar(
   // Save transaction log
   const list = getStoredTransaksiKeluar();
   list.unshift(transaksi);
-  localStorage.setItem(STORAGE_KEYS.KELUAR, JSON.stringify(list));
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEYS.KELUAR, JSON.stringify(list));
+  }
 
   const isLowStockNow = targetItem.stok <= targetItem.stokMinimum;
 
@@ -436,6 +444,7 @@ export function addStoredTransaksiKeluar(
 
 export function getStoredSatker(): PengaturanSatker {
   try {
+    if (typeof window === 'undefined') return DEFAULT_SATKER;
     const raw = localStorage.getItem(STORAGE_KEYS.SATKER);
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.SATKER, JSON.stringify(DEFAULT_SATKER));
@@ -449,6 +458,7 @@ export function getStoredSatker(): PengaturanSatker {
 
 export function saveStoredSatker(data: PengaturanSatker): void {
   try {
+    if (typeof window === 'undefined') return;
     localStorage.setItem(STORAGE_KEYS.SATKER, JSON.stringify(data));
   } catch (e) {
     console.error('Failed to save satker profile:', e);
@@ -461,6 +471,7 @@ export function getLowStockItems(): ItemATK[] {
 }
 
 export function resetAllDataToDefault(): void {
+  if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEYS.ITEMS, JSON.stringify(INITIAL_ITEMS));
   localStorage.setItem(STORAGE_KEYS.MASUK, JSON.stringify(INITIAL_MASUK));
   localStorage.setItem(STORAGE_KEYS.KELUAR, JSON.stringify(INITIAL_KELUAR));

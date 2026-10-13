@@ -97,7 +97,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Fetch daftar admin jika role adalah superadmin dan sedang di tab manajemen-admin
   React.useEffect(() => {
     if (activeSubTab === 'manajemen-admin' && currentUser.role === 'superadmin') {
-      fetch('http://localhost:3001/api/admins')
+      fetch('/api/admins')
         .then(res => res.json())
         .then(data => setAdminUsers(data))
         .catch(err => console.error(err));
@@ -133,7 +133,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Fungsi Simpan/Edit Admin
   const handleSaveAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = editingAdmin ? `http://localhost:3001/api/admins/${editingAdmin.id}` : 'http://localhost:3001/api/admins';
+    const url = editingAdmin ? `/api/admins/${editingAdmin.id}` : '/api/admins';
     const method = editingAdmin ? 'PUT' : 'POST';
 
     try {
@@ -144,7 +144,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       if (data.success) {
         setIsAdminModalOpen(false);
         // Refresh table
-        const refreshed = await fetch('http://localhost:3001/api/admins').then(r => r.json());
+        const refreshed = await fetch('/api/admins').then(r => r.json());
         setAdminUsers(refreshed);
       } else {
         alert(data.message);
@@ -1472,7 +1472,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                       {adm.id !== currentUser.id && (
                         <button onClick={async () => {
                           if (confirm('Hapus akun ini?')) {
-                            await fetch(`http://localhost:3001/api/admins/${adm.id}`, { method: 'DELETE' });
+                            await fetch(`/api/admins/${adm.id}`, { method: 'DELETE' });
                             setAdminUsers(prev => prev.filter(a => a.id !== adm.id));
                           }
                         }} className="text-rose-600 hover:bg-rose-50 p-1.5 rounded-md ml-2">

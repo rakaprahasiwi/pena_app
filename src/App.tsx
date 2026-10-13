@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -43,15 +45,12 @@ export default function App() {
   const [currentTab, setCurrentTab] = useState<'kiosk' | 'admin'>('kiosk');
 
   // Admin authentication state
-  const [loggedInUser, setLoggedInUser] = useState<AdminUser | null>(() => {
-    const saved = localStorage.getItem('sim_atk_current_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [loggedInUser, setLoggedInUser] = useState<AdminUser | null>(null);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const isAdminLoggedIn = loggedInUser !== null;
 
   // Audio mute state
-  const [isAudioMuted, setIsAudioMutedState] = useState<boolean>(() => getAudioMuted());
+  const [isAudioMuted, setIsAudioMutedState] = useState<boolean>(false);
 
   // Low stock modal state
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false);
@@ -66,10 +65,10 @@ export default function App() {
   const loadSemuaData = async () => {
     try {
       const [resItems, resMasuk, resKeluar, resSatker] = await Promise.all([
-        fetch('http://localhost:3001/api/items').then(r => r.json()),
-        fetch('http://localhost:3001/api/masuk').then(r => r.json()),
-        fetch('http://localhost:3001/api/keluar').then(r => r.json()),
-        fetch('http://localhost:3001/api/satker').then(r => r.json()),
+        fetch('/api/items').then(r => r.json()),
+        fetch('/api/masuk').then(r => r.json()),
+        fetch('/api/keluar').then(r => r.json()),
+        fetch('/api/satker').then(r => r.json()),
       ]);
       setItems(resItems);
       setTransaksiMasuk(resMasuk);
@@ -84,6 +83,17 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('sim_atk_current_user');
+        if (saved) {
+          setLoggedInUser(JSON.parse(saved));
+        }
+      } catch (e) {
+        console.error('Failed to parse current user from localStorage', e);
+      }
+      setIsAudioMutedState(getAudioMuted());
+    }
     loadSemuaData();
   }, []);
 
@@ -129,7 +139,7 @@ export default function App() {
   // Handle Taking ATK (Public Kiosk)
   const handleTakeItem = async (tx: TransaksiKeluar) => {
     try {
-      const res = await fetch('http://localhost:3001/api/keluar', {
+      const res = await fetch('/api/keluar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tx)
@@ -155,7 +165,7 @@ export default function App() {
 
   // CRUD Item Handlers
   const handleSaveItem = async (item: ItemATK) => {
-    await fetch('http://localhost:3001/api/items', {
+    await fetch('/api/items', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(item)
@@ -165,14 +175,14 @@ export default function App() {
   };
 
   const handleDeleteItem = async (id: string) => {
-    await fetch(`http://localhost:3001/api/items/${id}`, { method: 'DELETE' });
+    await fetch(`/api/items/${id}`, { method: 'DELETE' });
     await loadSemuaData();
     showToast('alert', 'Barang berhasil dihapus dari database.');
   };
 
   // Add Incoming Stock (Barang Masuk)
   const handleAddMasuk = async (tx: TransaksiMasuk) => {
-    await fetch('http://localhost:3001/api/masuk', {
+    await fetch('/api/masuk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(tx)
@@ -183,7 +193,7 @@ export default function App() {
 
   // Save Satker Profile
   const handleSaveSatker = async (newSatker: PengaturanSatker) => {
-    await fetch('http://localhost:3001/api/satker', {
+    await fetch('/api/satker', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newSatker)

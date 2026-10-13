@@ -13,7 +13,7 @@ interface LogoProps {
 export const KejaksaanLogo: React.FC<LogoProps> = ({ className = '', size = 44 }) => {
   return (
     <img
-      src="/src/utils/image/logo.png"
+      src="/logo.png"
       width={size}
       height={size} 
       alt="Lambang Kejaksaan Republik Indonesia"
