@@ -32,6 +32,7 @@ import { DashboardAdmin } from './components/DashboardAdmin';
 import { LoginModal } from './components/LoginModal';
 import { LowStockAlertModal } from './components/LowStockAlertModal';
 import { KejaksaanLogo } from './components/KejaksaanLogo';
+import { AppLoadingSkeleton } from './components/SkeletonScreens';
 import { AlertTriangle, CheckCircle2, Volume2, Shield } from 'lucide-react';
 
 export default function App() {
@@ -222,9 +223,9 @@ export default function App() {
     }
   };
 
-  // Tampilkan loading screen sementara data MySQL ditarik
+  // Tampilkan Skeleton Screen sementara data MySQL ditarik
   if (isLoading || !satker) {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50">Memuat Sistem...</div>;
+    return <AppLoadingSkeleton />;
   }
 
   return (

@@ -43,6 +43,7 @@ import {
 import { playAlertChime } from '../utils/audioAlert';
 import { calculateMonthlyMutation, exportMonthlyReportToExcel, NAMA_BULAN } from '../utils/exportUtils';
 import { PrintReportModal } from './PrintReportModal';
+import { TableSkeleton } from './SkeletonScreens';
 
 interface DashboardAdminProps {
   items: ItemATK[];
@@ -90,6 +91,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 
   // State baru untuk Manajemen Admin
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [isAdminUsersLoading, setIsAdminUsersLoading] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [editingAdmin, setEditingAdmin] = useState<AdminUser | null>(null);
   const [adminForm, setAdminForm] = useState<Partial<AdminUser>>({ username: '', password: '', role: 'admin', namaLengkap: '', status: 'aktif' });
@@ -97,10 +99,12 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Fetch daftar admin jika role adalah superadmin dan sedang di tab manajemen-admin
   React.useEffect(() => {
     if (activeSubTab === 'manajemen-admin' && currentUser.role === 'superadmin') {
+      setIsAdminUsersLoading(true);
       fetch('/api/admins')
         .then(res => res.json())
         .then(data => setAdminUsers(data))
-        .catch(err => console.error(err));
+        .catch(err => console.error(err))
+        .finally(() => setIsAdminUsersLoading(false));
     }
   }, [activeSubTab, currentUser.role]);
 
@@ -1438,52 +1442,58 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               </button>
             </div>
 
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-3 w-10 text-center">No</th>
-                  <th className="py-3 px-3">Username</th>
-                  <th className="py-3 px-3">Nama Lengkap</th>
-                  <th className="py-3 px-3">Level Akses</th>
-                  <th className="py-3 px-3">Status</th>
-                  <th className="py-3 px-3 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {adminUsers.map((adm, idx) => (
-                  <tr key={adm.id} className="border-b border-slate-100">
-                    <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
-                    <td className="py-3 px-3 font-bold text-slate-800">{adm.username}</td>
-                    <td className="py-3 px-3">{adm.namaLengkap}</td>
-                    <td className="py-3 px-3">
-                      <span className={`px-2 py-1 rounded-md ${adm.role === 'superadmin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}`}>
-                        {adm.role.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span className={adm.status === 'aktif' ? 'text-emerald-600 font-bold' : 'text-rose-600'}>
-                        {adm.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-center">
-                      <button onClick={() => { setEditingAdmin(adm); setAdminForm({ ...adm, password: '' }); setIsAdminModalOpen(true); }} className="text-emerald-700 hover:bg-emerald-50 p-1.5 rounded-md">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      {adm.id !== currentUser.id && (
-                        <button onClick={async () => {
-                          if (confirm('Hapus akun ini?')) {
-                            await fetch(`/api/admins/${adm.id}`, { method: 'DELETE' });
-                            setAdminUsers(prev => prev.filter(a => a.id !== adm.id));
-                          }
-                        }} className="text-rose-600 hover:bg-rose-50 p-1.5 rounded-md ml-2">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </td>
+            {isAdminUsersLoading ? (
+              <div className="p-4">
+                <TableSkeleton rows={4} cols={6} />
+              </div>
+            ) : (
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-3 w-10 text-center">No</th>
+                    <th className="py-3 px-3">Username</th>
+                    <th className="py-3 px-3">Nama Lengkap</th>
+                    <th className="py-3 px-3">Level Akses</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3 text-center">Aksi</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {adminUsers.map((adm, idx) => (
+                    <tr key={adm.id} className="border-b border-slate-100">
+                      <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
+                      <td className="py-3 px-3 font-bold text-slate-800">{adm.username}</td>
+                      <td className="py-3 px-3">{adm.namaLengkap}</td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-1 rounded-md ${adm.role === 'superadmin' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}`}>
+                          {adm.role.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span className={adm.status === 'aktif' ? 'text-emerald-600 font-bold' : 'text-rose-600'}>
+                          {adm.status === 'aktif' ? 'Aktif' : 'Nonaktif'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-center">
+                        <button onClick={() => { setEditingAdmin(adm); setAdminForm({ ...adm, password: '' }); setIsAdminModalOpen(true); }} className="text-emerald-700 hover:bg-emerald-50 p-1.5 rounded-md">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        {adm.id !== currentUser.id && (
+                          <button onClick={async () => {
+                            if (confirm('Hapus akun ini?')) {
+                              await fetch(`/api/admins/${adm.id}`, { method: 'DELETE' });
+                              setAdminUsers(prev => prev.filter(a => a.id !== adm.id));
+                            }
+                          }} className="text-rose-600 hover:bg-rose-50 p-1.5 rounded-md ml-2">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )
       }

@@ -30,10 +30,12 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { KejaksaanLogo } from './KejaksaanLogo';
+import { CardSkeleton } from './SkeletonScreens';
 
 interface KioskProps {
   items: ItemATK[];
   onTakeItem: (transaction: TransaksiKeluar) => Promise<{ success: boolean; message?: string; isLowStockNow?: boolean }>;
+  isLoading?: boolean;
 }
 
 const KATEGORI_OPTIONS: Array<'Semua' | KategoriATK> = [
@@ -57,7 +59,7 @@ const BIDANG_LIST: BidangKejaksaan[] = [
   // 'Pos Pelayanan Hukum & PTSP',
 ];
 
-export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) => {
+export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLoading = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'Semua' | KategoriATK>('Semua');
 
@@ -360,7 +362,10 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
 
       {/* Grid Katalog ATK */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {sortedItems.map((item) => {
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, idx) => <CardSkeleton key={idx} />)
+        ) : (
+          sortedItems.map((item) => {
           const isOutOfStock = item.stok <= 0;
           const isLowStock = !isOutOfStock && item.stok <= item.stokMinimum;
 
@@ -455,10 +460,10 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem }) =>
               </div>
             </div>
           );
-        })}
+        }))}
       </div>
 
-      {filteredItems.length === 0 && (
+      {!isLoading && filteredItems.length === 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
           <Layers className="w-12 h-12 text-slate-300 mx-auto" />
           <h3 className="text-base font-semibold text-slate-800">Barang tidak ditemukan</h3>
