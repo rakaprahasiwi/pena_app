@@ -78,6 +78,7 @@ export const TableSkeleton: React.FC<{ rows?: number; cols?: number }> = ({ rows
 export const AppLoadingSkeleton: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col text-slate-800">
+      
       {/* 1. Header Skeleton */}
       <header className="sticky top-0 z-40 bg-slate-900 border-b border-emerald-900/60 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

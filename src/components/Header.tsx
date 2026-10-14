@@ -68,10 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }`}
             >
               <PackageOpen className="w-4 h-4" />
-              <span>Kiosk Pengambilan ATK</span>
-              <span className="hidden lg:inline text-[10px] text-emerald-200/90 font-normal">
-                (Publik)
-              </span>
+              <span>Pengambilan ATK</span>
             </button>
 
             <button
