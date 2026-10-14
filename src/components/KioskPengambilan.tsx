@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { KejaksaanLogo } from './KejaksaanLogo';
 import { CardSkeleton } from './SkeletonScreens';
+import LoadingModal from './LoadingModal';
 
 interface KioskProps {
   items: ItemATK[];
@@ -62,6 +63,7 @@ const BIDANG_LIST: BidangKejaksaan[] = [
 export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLoading = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'Semua' | KategoriATK>('Semua');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Selected item to take
   const [selectedItem, setSelectedItem] = useState<ItemATK | null>(null);
@@ -273,6 +275,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     };
 
     const res = await onTakeItem(newTx);
+    setIsSubmitting(true);
     if (res.success) {
       stopCamera();
       setSelectedItem(null);
@@ -280,6 +283,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     } else {
       setSubmitError(res.message || 'Gagal mencatat transaksi.');
     }
+    setIsSubmitting(false);
   };
 
   return (
@@ -366,101 +370,101 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
           Array.from({ length: 8 }).map((_, idx) => <CardSkeleton key={idx} />)
         ) : (
           sortedItems.map((item) => {
-          const isOutOfStock = item.stok <= 0;
-          const isLowStock = !isOutOfStock && item.stok <= item.stokMinimum;
+            const isOutOfStock = item.stok <= 0;
+            const isLowStock = !isOutOfStock && item.stok <= item.stokMinimum;
 
-          return (
-            <div
-              key={item.id}
-              className={`bg-white rounded-xl border p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${isOutOfStock
-                ? 'border-slate-200 bg-slate-50/50 opacity-75'
-                : isLowStock
-                  ? 'border-amber-300 ring-1 ring-amber-200 hover:border-amber-400'
-                  : 'border-slate-200 hover:border-emerald-500'
-                }`}
-            >
-              <div className="space-y-3">
-                {/* Header metadata unboxed with separators */}
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span className="font-mono text-slate-600 font-medium">{item.kodeBarang}</span>
-                  <span>·</span>
-                  <span className="truncate max-w-[120px]">{item.kategori}</span>
-                </div>
+            return (
+              <div
+                key={item.id}
+                className={`bg-white rounded-xl border p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${isOutOfStock
+                  ? 'border-slate-200 bg-slate-50/50 opacity-75'
+                  : isLowStock
+                    ? 'border-amber-300 ring-1 ring-amber-200 hover:border-amber-400'
+                    : 'border-slate-200 hover:border-emerald-500'
+                  }`}
+              >
+                <div className="space-y-3">
+                  {/* Header metadata unboxed with separators */}
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span className="font-mono text-slate-600 font-medium">{item.kodeBarang}</span>
+                    <span>·</span>
+                    <span className="truncate max-w-[120px]">{item.kategori}</span>
+                  </div>
 
-                {/* Title */}
-                <div>
-                  <h3 className="font-semibold text-slate-900 text-base leading-snug line-clamp-2">
-                    {item.namaBarang}
-                  </h3>
-                  {item.spesifikasi && (
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                      {item.spesifikasi}
-                    </p>
-                  )}
-                </div>
+                  {/* Title */}
+                  <div>
+                    <h3 className="font-semibold text-slate-900 text-base leading-snug line-clamp-2">
+                      {item.namaBarang}
+                    </h3>
+                    {item.spesifikasi && (
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+                        {item.spesifikasi}
+                      </p>
+                    )}
+                  </div>
 
-                {/* Location indicator */}
-                <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{item.lokasiRak || 'Gudang Utama'}</span>
-                </div>
-              </div>
-
-              {/* Stock and Action */}
-              <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-slate-500 font-medium">Sisa Stok:</span>
-                  <div className="flex items-baseline gap-1">
-                    <span
-                      className={`text-xl font-bold font-mono tabular-nums ${isOutOfStock
-                        ? 'text-rose-600'
-                        : isLowStock
-                          ? 'text-amber-600'
-                          : 'text-emerald-700'
-                        }`}
-                    >
-                      {item.stok}
-                    </span>
-                    <span className="text-xs text-slate-600 font-medium">{item.satuan}</span>
+                  {/* Location indicator */}
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate">{item.lokasiRak || 'Gudang Utama'}</span>
                   </div>
                 </div>
 
-                {/* Status indicator line */}
-                <div className="text-[11px] font-medium flex items-center gap-1">
-                  {isOutOfStock ? (
-                    <span className="text-rose-600 flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5" /> Stok Habis
-                    </span>
-                  ) : isLowStock ? (
-                    <span className="text-amber-600 flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5" /> Stok Menipis (Min: {item.stokMinimum})
-                    </span>
-                  ) : (
-                    <span className="text-emerald-700 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Tersedia
-                    </span>
-                  )}
-                </div>
+                {/* Stock and Action */}
+                <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-xs text-slate-500 font-medium">Sisa Stok:</span>
+                    <div className="flex items-baseline gap-1">
+                      <span
+                        className={`text-xl font-bold font-mono tabular-nums ${isOutOfStock
+                          ? 'text-rose-600'
+                          : isLowStock
+                            ? 'text-amber-600'
+                            : 'text-emerald-700'
+                          }`}
+                      >
+                        {item.stok}
+                      </span>
+                      <span className="text-xs text-slate-600 font-medium">{item.satuan}</span>
+                    </div>
+                  </div>
 
-                {/* Take item button */}
-                <button
-                  type="button"
-                  disabled={isOutOfStock}
-                  onClick={() => handleOpenModal(item)}
-                  className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${isOutOfStock
-                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    : isLowStock
-                      ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-xs'
-                      : 'bg-emerald-800 text-white hover:bg-emerald-700 shadow-xs'
-                    }`}
-                >
-                  <Package className="w-4 h-4" />
-                  <span>{isOutOfStock ? 'Stok Tidak Tersedia' : 'Ambil Barang Ini'}</span>
-                </button>
+                  {/* Status indicator line */}
+                  <div className="text-[11px] font-medium flex items-center gap-1">
+                    {isOutOfStock ? (
+                      <span className="text-rose-600 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" /> Stok Habis
+                      </span>
+                    ) : isLowStock ? (
+                      <span className="text-amber-600 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" /> Stok Menipis (Min: {item.stokMinimum})
+                      </span>
+                    ) : (
+                      <span className="text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Tersedia
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Take item button */}
+                  <button
+                    type="button"
+                    disabled={isOutOfStock}
+                    onClick={() => handleOpenModal(item)}
+                    className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${isOutOfStock
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                      : isLowStock
+                        ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-xs'
+                        : 'bg-emerald-800 text-white hover:bg-emerald-700 shadow-xs'
+                      }`}
+                  >
+                    <Package className="w-4 h-4" />
+                    <span>{isOutOfStock ? 'Stok Tidak Tersedia' : 'Ambil Barang Ini'}</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        }))}
+            );
+          }))}
       </div>
 
       {!isLoading && filteredItems.length === 0 && (
@@ -795,13 +799,15 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-700 rounded-lg shadow-sm transition-all flex items-center gap-2"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-700 rounded-lg shadow-sm transition-all flex items-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Konfirmasi Pengambilan ATK</span>
+                  <span>{isSubmitting ? 'Memproses...' : 'Konfirmasi Pengambilan ATK'}</span>
                 </button>
               </div>
             </form>
+            <LoadingModal isOpen={isSubmitting} message="Mencatat pengambilan barang..." />
           </div>
         </div>
       )}

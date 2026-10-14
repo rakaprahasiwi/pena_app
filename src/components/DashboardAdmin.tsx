@@ -44,6 +44,7 @@ import { playAlertChime } from '../utils/audioAlert';
 import { calculateMonthlyMutation, exportMonthlyReportToExcel, NAMA_BULAN } from '../utils/exportUtils';
 import { PrintReportModal } from './PrintReportModal';
 import { TableSkeleton } from './SkeletonScreens';
+import LoadingModal from './LoadingModal';
 
 interface DashboardAdminProps {
   items: ItemATK[];
@@ -88,6 +89,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTab>(initialRestockItem ? 'masuk' : 'ringkasan');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'Semua' | KategoriATK>('Semua');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State baru untuk Manajemen Admin
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
@@ -137,6 +139,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Fungsi Simpan/Edit Admin
   const handleSaveAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const url = editingAdmin ? `/api/admins/${editingAdmin.id}` : '/api/admins';
     const method = editingAdmin ? 'PUT' : 'POST';
 
@@ -155,6 +158,8 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       }
     } catch (err) {
       alert("Gagal menyimpan akun admin");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -237,6 +242,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Save Item (Create or Update)
   const handleSaveItemSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (!itemFormData.namaBarang.trim()) return;
 
     const saved: ItemATK = {
@@ -254,11 +260,13 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 
     onSaveItem(saved);
     setIsItemModalOpen(false);
+    setIsSubmitting(false);
   };
 
   // Submit Incoming Stock
   const handleMasukSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     const targetItem = items.find((i) => i.id === masukFormData.itemId);
     if (!targetItem) return;
 
@@ -278,6 +286,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     onAddMasuk(tx);
     setMasukSuccessMessage(`Berhasil menambahkan ${tx.jumlah} ${tx.satuan} untuk "${tx.namaBarang}".`);
     setTimeout(() => setMasukSuccessMessage(null), 4000);
+    setIsSubmitting(false);
 
     if (onClearInitialRestockItem) {
       onClearInitialRestockItem();
@@ -287,9 +296,11 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Save Satker profile
   const handleSaveSatkerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     onSaveSatker(satkerForm);
     setSatkerSavedNotice(true);
     setTimeout(() => setSatkerSavedNotice(false), 3000);
+    setIsSubmitting(false);
   };
 
   // Filter items in master view
@@ -298,7 +309,8 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     const matchQ =
       item.namaBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.kodeBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.lokasiRak.toLowerCase().includes(searchQuery.toLowerCase());
+      item.lokasiRak.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.satuan.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchQ;
   });
   const paginatedMaster = filteredMasterItems.slice((masterPage - 1) * ITEMS_PER_PAGE, masterPage * ITEMS_PER_PAGE);
@@ -945,12 +957,14 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-4 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5"
+                  disabled={isSubmitting}
+                  className="w-full py-2.5 px-4 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Simpan Penerimaan Barang</span>
+                  <span>{isSubmitting ? 'Memproses...' : 'Simpan Penerimaan Barang'}</span>
                 </button>
               </form>
+              <LoadingModal isOpen={isSubmitting} message="Menyimpan barang..." />
             </div>
 
             {/* Tabel Riwayat Penerimaan */}
@@ -1414,13 +1428,15 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <div className="flex items-center justify-between pt-4 border-t border-slate-200">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-xs flex items-center gap-2 transition-colors"
+                  disabled={isSubmitting}
+                  className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow-xs flex items-center gap-2 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
                 >
                   <Save className="w-4 h-4" />
-                  <span>Simpan Perubahan Satker</span>
+                  <span>{isSubmitting ? 'Memproses...' : 'Simpan Perubahan Satker'}</span>
                 </button>
               </div>
             </form>
+            <LoadingModal isOpen={isSubmitting} message='Menyimpan...' />
           </div>
         )
       }
@@ -1628,12 +1644,14 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-xs"
+                    disabled={isSubmitting}
+                    className="px-5 py-2 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-xs ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
                   >
                     {editingItem ? 'Simpan Perubahan' : 'Tambahkan Barang'}
                   </button>
                 </div>
               </form>
+              <LoadingModal isOpen={isSubmitting} message={editingItem ? 'Simpan Perubahan' : 'Tambahkan Barang'} />
             </div>
           </div>
         )
@@ -1676,8 +1694,9 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                     </select>
                   </div>
                 </div>
-                <button type="submit" className="w-full bg-emerald-800 text-white py-2 rounded-lg font-bold">Simpan Akun</button>
+                <button type="submit" disabled={isSubmitting} className="w-full bg-emerald-800 text-white py-2 rounded-lg font-bold ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}">{isSubmitting ? 'Memproses...' : 'Simpan Akun'}</button>
               </form>
+              <LoadingModal isOpen={isSubmitting} message="Menyimpan akun..." />
             </div>
           </div>
         )
