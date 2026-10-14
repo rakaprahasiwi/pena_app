@@ -98,11 +98,13 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTab>(initialRestockItem ? 'masuk' : 'ringkasan');
 
+  //search dan filter
   const [searchQuery, setSearchQuery] = useState('');
   const [searchKeluar, setSearchKeluar] = useState("");
   const [searchMasuk, setSearchMasuk] = useState("");
   const [searchAdmin, setSearchAdmin] = useState("");
 
+  //set search dan filter kategori
   const [categoryFilter, setCategoryFilter] = useState<'Semua' | KategoriATK>('Semua');
   const [bidangFilter, setBidangFilter] = useState<'Semua' | BidangKejaksaan>('Semua');
 
@@ -151,6 +153,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [masukPage, setMasukPage] = useState(1);
   const [keluarPage, setKeluarPage] = useState(1);
   const [laporanPage, setLaporanPage] = useState(1);
+  const [adminPage, setadminPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
   // Fungsi Simpan/Edit Admin
@@ -180,6 +183,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     }
   };
 
+  //pagination 10/10
   const Pagination = ({ current, total, onPageChange }: { current: number, total: number, onPageChange: (p: number) => void }) => {
     const maxPage = Math.ceil(total / ITEMS_PER_PAGE) || 1;
     if (total <= ITEMS_PER_PAGE) return null; // Sembunyikan jika tidak perlu pagination
@@ -331,6 +335,25 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     return matchCat && matchQ;
   });
 
+  // Filter Riwayat Penerimaan Barang Masuk
+  const filteredMasuk = transaksiMasuk.filter((trx) => {
+    const formattedDate = trx.tanggal
+      ? new Date(trx.tanggal).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).toLowerCase()
+      : "";
+
+    const match =
+      trx.namaBarang.toLowerCase().includes(searchMasuk.toLowerCase()) ||
+      trx.kodeBarang.toLowerCase().includes(searchMasuk.toLowerCase()) ||
+      trx.dicatatOleh.toLowerCase().includes(searchMasuk.toLowerCase()) ||
+      formattedDate.includes(searchMasuk.toLowerCase());
+
+    return match;
+  });
+
   // Filter Log Transaksi Pengeluaran
   const filteredKeluar = transaksiKeluar.filter((trx) => {
     const matchBid = bidangFilter === 'Semua' || trx.bidang === bidangFilter;
@@ -351,40 +374,27 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     return matchBid && match;
   });
 
-  // // Filter Riwayat Penerimaan Barang Masuk
-  // const filteredMasuk = transaksiMasuk.filter((trx) => {
-  //   const searchLower = searchMasuk.toLowerCase();
-  //   return (
-  //     trx.namaBarang?.toLowerCase().includes(searchLower) ||
-  //     trx.tanggal?.toLowerCase().includes(searchLower) ||
-  //     trx.dicatatOleh?.toLowerCase().includes(searchLower)
-  //   );
-  // });
-
-  // // Filter Kelola Akses Administrator
-  // const filteredAdmins = adminUsers.filter((admin) => {
-  //   const searchLower = searchAdmin.toLowerCase();
-  //   return (
-  //     admin.username?.toLowerCase().includes(searchLower) ||
-  //     admin.role?.toLowerCase().includes(searchLower) ||
-  //     admin.status?.toLowerCase().includes(searchLower) ||
-  //     admin.namaLengkap?.toLowerCase().includes(searchLower) // Sesuaikan dengan field nama Anda
-  //   );
-  // });
+  // Filter Kelola Akses Administrator
+  const filteredAdmins = adminUsers.filter((admin) => {
+    const match =
+      admin.username.toLowerCase().includes(searchAdmin.toLowerCase()) ||
+      admin.role.toLowerCase().includes(searchAdmin.toLowerCase()) ||
+      admin.status.toLowerCase().includes(searchAdmin.toLowerCase()) ||
+      admin.namaLengkap.toLowerCase().includes(searchAdmin.toLowerCase());
+    return match;
+  });
 
   const paginatedMaster = filteredMasterItems.slice((masterPage - 1) * ITEMS_PER_PAGE, masterPage * ITEMS_PER_PAGE);
-
-  const paginatedMasuk = transaksiMasuk.slice((masukPage - 1) * ITEMS_PER_PAGE, masukPage * ITEMS_PER_PAGE);
-
+  const paginatedMasuk = filteredMasuk.slice((masukPage - 1) * ITEMS_PER_PAGE, masukPage * ITEMS_PER_PAGE);
   const paginatedKeluar = filteredKeluar.slice((keluarPage - 1) * ITEMS_PER_PAGE, keluarPage * ITEMS_PER_PAGE);
-
   const paginatedLaporan = monthlyMutations.slice((laporanPage - 1) * ITEMS_PER_PAGE, laporanPage * ITEMS_PER_PAGE);
+  const paginatedAdmin = filteredAdmins.slice((adminPage - 1) * ITEMS_PER_PAGE, adminPage * ITEMS_PER_PAGE);
 
   return (
     <div className="space-y-6">
       {/* PRIORITY LOW STOCK ALERT BANNER (If items <= minimum) */}
       {lowStockItems.length > 0 && (
-        <div className="bg-gradient-to-r from-rose-900 via-rose-800 to-amber-900 border-2 border-rose-500/80 rounded-2xl p-5 text-white shadow-lg animate-in slide-in-from-top-2 duration-300">
+        <div className="bg-linear-to-r from-rose-900 via-rose-800 to-amber-900 border-2 border-rose-500/80 rounded-2xl p-5 text-white shadow-lg animate-in slide-in-from-top-2 duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2.5 bg-rose-950/80 rounded-xl text-rose-200 border border-rose-700/60 shrink-0">
@@ -593,7 +603,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </div>
                 <div className="text-[11px] text-slate-500 pt-1 border-t border-slate-100 flex items-center justify-between">
                   <span>Status:</span>
-                  <strong className="truncate max-w-[140px] text-slate-800">Penambahan</strong>
+                  <strong className="truncate max-w-35 text-slate-800">Penambahan</strong>
                 </div>
               </div>
 
@@ -683,7 +693,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                               {tx.namaPengambil}
                             </span>
                             <span className="text-slate-400">·</span>
-                            <span className="text-[11px] text-slate-500 truncate max-w-[150px]">
+                            <span className="text-[11px] text-slate-500 truncate max-w-37.5">
                               {tx.bidang}
                             </span>
                           </div>
@@ -1039,6 +1049,20 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </div>
               </div>
 
+              {/* Search Filter Bar */}
+              <div className="flex flex-col md:flex-row gap-3 pt-2 border-t border-slate-100">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={searchMasuk}
+                    onChange={(e) => setSearchMasuk(e.target.value)}
+                    placeholder="Cari nama barang, penerima atau kode barang..."
+                    className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                  />
+                </div>
+              </div>
+
               <div className="overflow-x-auto border border-slate-200 rounded-xl">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
@@ -1073,7 +1097,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                     ))}
                   </tbody>
                 </table>
-                <Pagination current={masukPage} total={transaksiMasuk.length} onPageChange={setMasukPage} />
+                <Pagination current={masukPage} total={filteredMasuk.length} onPageChange={setMasukPage} />
               </div>
             </div>
           </div>
@@ -1542,12 +1566,26 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               </button>
             </div>
 
+            {/* Search Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-3 pt-2 border-t border-slate-100">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchAdmin}
+                  onChange={(e) => setSearchAdmin(e.target.value)}
+                  placeholder="Cari nama, username, level, atau status..."
+                  className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                />
+              </div>
+            </div>
+
             {isAdminUsersLoading ? (
               <div className="p-4">
                 <TableSkeleton rows={4} cols={6} />
               </div>
             ) : (
-              <table className="w-full text-left text-xs">
+              <><table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-3 w-10 text-center">No</th>
@@ -1559,7 +1597,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {adminUsers.map((adm, idx) => (
+                  {paginatedAdmin.map((adm, idx) => (
                     <tr key={adm.id} className="border-b border-slate-100">
                       <td className="py-2.5 px-3 text-center font-mono text-slate-500">{idx + 1}</td>
                       <td className="py-3 px-3 font-bold text-slate-800">{adm.username}</td>
@@ -1592,7 +1630,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table><Pagination current={adminPage} total={filteredAdmins.length} onPageChange={setadminPage} /></>
             )}
           </div>
         )
