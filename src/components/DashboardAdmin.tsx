@@ -12,6 +12,7 @@ import {
   KategoriATK,
   MutasiBarang,
   AdminUser,
+  BidangKejaksaan,
 } from '../types';
 import {
   Package,
@@ -73,6 +74,15 @@ const KATEGORI_LIST: KategoriATK[] = [
   'Perlengkapan Kantor Lainnya',
 ];
 
+const BIDANG_LIST: BidangKejaksaan[] = [
+  'Subbagian Pembinaan',
+  'Seksi Intelijen',
+  'Seksi Tindak Pidana Umum (Pidum)',
+  'Seksi Tindak Pidana Khusus (Pidsus)',
+  'Seksi Perdata dan Tata Usaha Negara (Datun)',
+  'Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)',
+];
+
 export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   items,
   transaksiMasuk,
@@ -87,8 +97,15 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   currentUser
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<AdminSubTab>(initialRestockItem ? 'masuk' : 'ringkasan');
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchKeluar, setSearchKeluar] = useState("");
+  const [searchMasuk, setSearchMasuk] = useState("");
+  const [searchAdmin, setSearchAdmin] = useState("");
+
   const [categoryFilter, setCategoryFilter] = useState<'Semua' | KategoriATK>('Semua');
+  const [bidangFilter, setBidangFilter] = useState<'Semua' | BidangKejaksaan>('Semua');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State baru untuk Manajemen Admin
@@ -313,11 +330,53 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       item.satuan.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchQ;
   });
+
+  // Filter Log Transaksi Pengeluaran
+  const filteredKeluar = transaksiKeluar.filter((trx) => {
+    const matchBid = bidangFilter === 'Semua' || trx.bidang === bidangFilter;
+
+    const formattedDate = trx.tanggal
+      ? new Date(trx.tanggal).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).toLowerCase()
+      : "";
+
+    const match =
+      trx.namaBarang.toLowerCase().includes(searchKeluar.toLowerCase()) ||
+      trx.namaPengambil.toLowerCase().includes(searchKeluar.toLowerCase()) ||
+      trx.keperluan.toLowerCase().includes(searchKeluar.toLowerCase()) ||
+      formattedDate.includes(searchKeluar.toLowerCase());
+    return matchBid && match;
+  });
+
+  // // Filter Riwayat Penerimaan Barang Masuk
+  // const filteredMasuk = transaksiMasuk.filter((trx) => {
+  //   const searchLower = searchMasuk.toLowerCase();
+  //   return (
+  //     trx.namaBarang?.toLowerCase().includes(searchLower) ||
+  //     trx.tanggal?.toLowerCase().includes(searchLower) ||
+  //     trx.dicatatOleh?.toLowerCase().includes(searchLower)
+  //   );
+  // });
+
+  // // Filter Kelola Akses Administrator
+  // const filteredAdmins = adminUsers.filter((admin) => {
+  //   const searchLower = searchAdmin.toLowerCase();
+  //   return (
+  //     admin.username?.toLowerCase().includes(searchLower) ||
+  //     admin.role?.toLowerCase().includes(searchLower) ||
+  //     admin.status?.toLowerCase().includes(searchLower) ||
+  //     admin.namaLengkap?.toLowerCase().includes(searchLower) // Sesuaikan dengan field nama Anda
+  //   );
+  // });
+
   const paginatedMaster = filteredMasterItems.slice((masterPage - 1) * ITEMS_PER_PAGE, masterPage * ITEMS_PER_PAGE);
 
   const paginatedMasuk = transaksiMasuk.slice((masukPage - 1) * ITEMS_PER_PAGE, masukPage * ITEMS_PER_PAGE);
 
-  const paginatedKeluar = transaksiKeluar.slice((keluarPage - 1) * ITEMS_PER_PAGE, keluarPage * ITEMS_PER_PAGE);
+  const paginatedKeluar = filteredKeluar.slice((keluarPage - 1) * ITEMS_PER_PAGE, keluarPage * ITEMS_PER_PAGE);
 
   const paginatedLaporan = monthlyMutations.slice((laporanPage - 1) * ITEMS_PER_PAGE, laporanPage * ITEMS_PER_PAGE);
 
@@ -1039,6 +1098,31 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               </div>
             </div>
 
+            <div className="flex flex-col md:flex-row gap-3 pt-2 border-t border-slate-100">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchKeluar}
+                  onChange={(e) => setSearchKeluar(e.target.value)}
+                  placeholder="Cari nama barang atau penerima..."
+                  className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+                />
+              </div>
+              <select
+                value={bidangFilter}
+                onChange={(e) => setBidangFilter(e.target.value as 'Semua' | BidangKejaksaan)}
+                className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 font-medium text-slate-700"
+              >
+                <option value="Semua">Semua Bidang</option>
+                {BIDANG_LIST.map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="overflow-x-auto border border-slate-200 rounded-xl">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
@@ -1134,7 +1218,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   ))}
                 </tbody>
               </table>
-              <Pagination current={keluarPage} total={transaksiKeluar.length} onPageChange={setKeluarPage} />
+              <Pagination current={keluarPage} total={filteredKeluar.length} onPageChange={setKeluarPage} />
             </div>
           </div>
         )
