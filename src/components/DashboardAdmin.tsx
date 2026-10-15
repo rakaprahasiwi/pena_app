@@ -1794,7 +1794,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 </div>
                 <div>
                   <label className="font-semibold block mb-1">Nama Lengkap</label>
-                  <input type="text" value={adminForm.namaLengkap} onChange={e => setAdminForm({ ...adminForm, namaLengkap: e.target.value })} className="w-full border p-2 rounded-lg" />
+                  <input type="text" value={adminForm.namaLengkap || ''} onChange={e => setAdminForm({ ...adminForm, namaLengkap: e.target.value })} className="w-full border p-2 rounded-lg" />
                 </div>
                 <div>
                   <label className="font-semibold block mb-1">Password {editingAdmin && '(Isi hanya jika ingin mengubah password)'}</label>
