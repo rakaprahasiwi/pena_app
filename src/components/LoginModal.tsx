@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { KejaksaanLogo } from './KejaksaanLogo';
 import { Lock, User, KeyRound, AlertCircle, X, ShieldCheck } from 'lucide-react';
 import { AdminUser } from '../types';
+import LoadingModal from './LoadingModal';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -113,12 +114,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSucce
 
           <button
             type="submit"
-            className="w-full py-2.5 px-4 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors text-xs flex items-center justify-center gap-2"
+            disabled={isSubmitting}
+            className="w-full py-2.5 px-4 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-sm transition-colors text-xs flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span>Masuk ke Dashboard Admin</span>
+            <span>{isSubmitting ? 'Memproses...' : 'Masuk ke Dashboard Admin'}</span>
           </button>
         </form>
+        <LoadingModal isOpen={isSubmitting} message="Proses..." />
       </div>
     </div>
   );
