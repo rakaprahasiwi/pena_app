@@ -1790,7 +1790,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <form onSubmit={handleSaveAdmin} className="p-6 space-y-4 text-xs">
                 <div>
                   <label className="font-semibold block mb-1">Username *</label>
-                  <input required type="text" value={adminForm.username} onChange={e => setAdminForm({ ...adminForm, username: e.target.value })} className="w-full border p-2 rounded-lg" />
+                  <input required type="text" value={adminForm.username || ''} onChange={e => setAdminForm({ ...adminForm, username: e.target.value })} className="w-full border p-2 rounded-lg" />
                 </div>
                 <div>
                   <label className="font-semibold block mb-1">Nama Lengkap</label>

@@ -71,7 +71,7 @@ export default function App() {
         fetch('/api/keluar').then(r => r.json()),
         fetch('/api/satker').then(r => r.json()),
       ]);
-      setItems(resItems);
+      setItems(resItems || []);
       setTransaksiMasuk(resMasuk);
       setTransaksiKeluar(resKeluar);
       setSatker(resSatker);
@@ -119,7 +119,10 @@ export default function App() {
   }, []);
 
   // Calculate low stock items
-  const lowStockItems = items.filter((item) => item.stok <= item.stokMinimum);
+  // const lowStockItems = items.filter((item) => item.stok <= item.stokMinimum);
+  const lowStockItems = Array.isArray(items) 
+  ? items.filter((item) => item.stok <= item.stokMinimum) 
+  : [];
 
   const showToast = (type: 'success' | 'alert', message: string) => {
     setToast({ type, message });

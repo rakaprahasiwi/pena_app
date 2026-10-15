@@ -3,13 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   ItemATK,
   KategoriATK,
   BidangKejaksaan,
   TransaksiKeluar,
-} from '../types';
+} from "../types";
 import {
   Search,
   Camera,
@@ -28,59 +28,69 @@ import {
   Building2,
   FileText,
   RotateCcw,
-} from 'lucide-react';
-import { KejaksaanLogo } from './KejaksaanLogo';
-import { CardSkeleton } from './SkeletonScreens';
-import LoadingModal from './LoadingModal';
+} from "lucide-react";
+import { KejaksaanLogo } from "./KejaksaanLogo";
+import { CardSkeleton } from "./SkeletonScreens";
+import LoadingModal from "./LoadingModal";
 
 interface KioskProps {
   items: ItemATK[];
-  onTakeItem: (transaction: TransaksiKeluar) => Promise<{ success: boolean; message?: string; isLowStockNow?: boolean }>;
+  onTakeItem: (
+    transaction: TransaksiKeluar,
+  ) => Promise<{ success: boolean; message?: string; isLowStockNow?: boolean }>;
   isLoading?: boolean;
 }
 
-const KATEGORI_OPTIONS: Array<'Semua' | KategoriATK> = [
-  'Semua',
-  'Kertas & Buku',
-  'Alat Tulis & Pena',
-  'Pengarsipan & Map',
-  'Binder & Penjepit',
-  'Tinta & Toner Printer',
-  'Perlengkapan Kantor Lainnya',
+const KATEGORI_OPTIONS: Array<"Semua" | KategoriATK> = [
+  "Semua",
+  "Kertas & Buku",
+  "Alat Tulis & Pena",
+  "Pengarsipan & Map",
+  "Binder & Penjepit",
+  "Tinta & Toner Printer",
+  "Perlengkapan Kantor Lainnya",
 ];
 
 const BIDANG_LIST: BidangKejaksaan[] = [
-  'Subbagian Pembinaan',
-  'Seksi Intelijen',
-  'Seksi Tindak Pidana Umum (Pidum)',
-  'Seksi Tindak Pidana Khusus (Pidsus)',
-  'Seksi Perdata dan Tata Usaha Negara (Datun)',
-  'Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)',
+  "Subbagian Pembinaan",
+  "Seksi Intelijen",
+  "Seksi Tindak Pidana Umum (Pidum)",
+  "Seksi Tindak Pidana Khusus (Pidsus)",
+  "Seksi Perdata dan Tata Usaha Negara (Datun)",
+  "Seksi Pengelolaan Barang Bukti & Barang Rampasan (PBBR)",
   // 'Kelompok Jabatan Fungsional',
   // 'Pos Pelayanan Hukum & PTSP',
 ];
 
-export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLoading = false }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'Semua' | KategoriATK>('Semua');
+export const KioskPengambilan: React.FC<KioskProps> = ({
+  items,
+  onTakeItem,
+  isLoading = false,
+}) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<
+    "Semua" | KategoriATK
+  >("Semua");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Selected item to take
   const [selectedItem, setSelectedItem] = useState<ItemATK | null>(null);
 
   // Form states
-  const [namaPengambil, setNamaPengambil] = useState('');
-  const [nipPengambil, setNipPengambil] = useState('');
-  const [bidang, setBidang] = useState<BidangKejaksaan>('Seksi Tindak Pidana Umum (Pidum)');
-  const [keperluan, setKeperluan] = useState('');
+  const [namaPengambil, setNamaPengambil] = useState("");
+  const [nipPengambil, setNipPengambil] = useState("");
+  const [bidang, setBidang] = useState<BidangKejaksaan>(
+    "Seksi Tindak Pidana Umum (Pidum)",
+  );
+  const [keperluan, setKeperluan] = useState("");
   const [jumlah, setJumlah] = useState<number>(1);
 
   // Photo mode: 'camera' | 'upload'
-  const [photoMode, setPhotoMode] = useState<'camera' | 'upload'>('camera');
+  const [photoMode, setPhotoMode] = useState<"camera" | "upload">("camera");
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
 
   // Success receipt modal state
   const [lastReceipt, setLastReceipt] = useState<TransaksiKeluar | null>(null);
@@ -91,14 +101,18 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
   const streamRef = useRef<MediaStream | null>(null);
 
   // Filter items
-  const filteredItems = items.filter((item) => {
-    const matchCategory = selectedCategory === 'Semua' || item.kategori === selectedCategory;
-    const matchSearch =
-      item.namaBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.kodeBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.lokasiRak && item.lokasiRak.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchCategory && matchSearch;
-  });
+  const filteredItems = Array.isArray(items)
+    ? items.filter((item) => {
+        const matchCategory =
+          selectedCategory === "Semua" || item.kategori === selectedCategory;
+        const matchSearch =
+          item.namaBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.kodeBarang.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (item.lokasiRak &&
+            item.lokasiRak.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchCategory && matchSearch;
+      })
+    : [];
 
   // TAMBAHAN: Urutkan agar stok yang habis tampil paling belakang
   const sortedItems = [...filteredItems].sort((a, b) => {
@@ -113,7 +127,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     setCameraError(null);
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Browser tidak mendukung akses kamera langsung.');
+        throw new Error("Browser tidak mendukung akses kamera langsung.");
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -128,12 +142,17 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play().catch((e) => console.log('Video play interrupted:', e));
+        videoRef.current
+          .play()
+          .catch((e) => console.log("Video play interrupted:", e));
       }
       setIsCameraActive(true);
     } catch (err: unknown) {
-      console.warn('Camera access failed:', err);
-      const msg = err instanceof Error ? err.message : 'Izin kamera ditolak atau perangkat kamera tidak tersedia.';
+      console.warn("Camera access failed:", err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Izin kamera ditolak atau perangkat kamera tidak tersedia.";
       setCameraError(msg + ' Silakan gunakan opsi "Unggah Berkas Foto".');
       setIsCameraActive(false);
     }
@@ -150,7 +169,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
 
   // When modal opens with camera mode
   useEffect(() => {
-    if (selectedItem && photoMode === 'camera' && !capturedPhoto) {
+    if (selectedItem && photoMode === "camera" && !capturedPhoto) {
       startCamera();
     } else {
       stopCamera();
@@ -168,11 +187,11 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     // Flip horizontally if front camera for natural selfie look
-    if (facingMode === 'user') {
+    if (facingMode === "user") {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
@@ -180,17 +199,17 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     // Add watermark timestamp on snapshot
-    ctx.font = '14px sans-serif';
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    ctx.font = "14px sans-serif";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
     ctx.fillRect(0, canvas.height - 28, canvas.width, 28);
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(
-      `PENGAMBILAN ATK - KEJAKSAAN NEGERI · ${new Date().toLocaleString('id-ID')}`,
+      `PENGAMBILAN ATK - KEJAKSAAN NEGERI · ${new Date().toLocaleString("id-ID")}`,
       12,
-      canvas.height - 10
+      canvas.height - 10,
     );
 
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
     setCapturedPhoto(dataUrl);
     stopCamera();
   };
@@ -200,8 +219,8 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Mohon unggah file format gambar (JPG/PNG/WebP).');
+    if (!file.type.startsWith("image/")) {
+      alert("Mohon unggah file format gambar (JPG/PNG/WebP).");
       return;
     }
 
@@ -217,13 +236,13 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
   const handleOpenModal = (item: ItemATK) => {
     setSelectedItem(item);
     setJumlah(1);
-    setNamaPengambil('');
-    setNipPengambil('');
-    setKeperluan('');
+    setNamaPengambil("");
+    setNipPengambil("");
+    setKeperluan("");
     setCapturedPhoto(null);
     setCameraError(null);
     setSubmitError(null);
-    setPhotoMode('camera');
+    setPhotoMode("camera");
   };
 
   // Close item request modal
@@ -238,22 +257,26 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
     if (!selectedItem) return;
 
     if (!namaPengambil.trim()) {
-      setSubmitError('Nama Pengambil wajib diisi.');
+      setSubmitError("Nama Pengambil wajib diisi.");
       return;
     }
 
     if (!keperluan.trim()) {
-      setSubmitError('Keperluan penggunaan ATK wajib diisi.');
+      setSubmitError("Keperluan penggunaan ATK wajib diisi.");
       return;
     }
 
     if (jumlah <= 0 || jumlah > selectedItem.stok) {
-      setSubmitError(`Jumlah tidak valid (Maksimal: ${selectedItem.stok} ${selectedItem.satuan}).`);
+      setSubmitError(
+        `Jumlah tidak valid (Maksimal: ${selectedItem.stok} ${selectedItem.satuan}).`,
+      );
       return;
     }
 
     if (!capturedPhoto) {
-      setSubmitError('Wajib menyertakan foto pengambil barang (foto webcam atau unggahan berkas).');
+      setSubmitError(
+        "Wajib menyertakan foto pengambil barang (foto webcam atau unggahan berkas).",
+      );
       return;
     }
 
@@ -271,7 +294,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
       keperluan: keperluan.trim(),
       fotoPengambil: capturedPhoto,
       tanggal: new Date().toISOString(),
-      status: 'Diterima Langsung',
+      status: "Diterima Langsung",
     };
 
     const res = await onTakeItem(newTx);
@@ -281,7 +304,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
       setSelectedItem(null);
       setLastReceipt(newTx);
     } else {
-      setSubmitError(res.message || 'Gagal mencatat transaksi.');
+      setSubmitError(res.message || "Gagal mencatat transaksi.");
     }
     setIsSubmitting(false);
   };
@@ -300,8 +323,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
               Portal Pengambilan ATK Kantor
             </h1>
             <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
-              Silahkan cari barang ATK yang dibutuhkan, isi data seksi/bidang pemohon, dan ambil foto
-              dokumentasi penerima untuk Akuntabilitas Berita Acara Mutasi Barang Milik Negara (BMN).
+              Silahkan cari barang ATK yang dibutuhkan, isi data seksi/bidang
+              pemohon, dan ambil foto dokumentasi penerima untuk Akuntabilitas
+              Berita Acara Mutasi Barang Milik Negara (BMN).
             </p>
           </div>
           <div className="flex items-center gap-4 bg-slate-900/60 p-4 rounded-xl border border-emerald-600/30 backdrop-blur-sm shrink-0">
@@ -314,7 +338,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
             <div className="w-px h-8 bg-emerald-700/40" />
             <div className="text-center px-2">
               <span className="block text-2xl font-bold font-mono text-amber-400 tabular-nums">
-                {items.filter((i) => i.stok > 0).length}
+                {Array.isArray(items) ? items.filter((i) => i.stok > 0).length : 0}
               </span>
               <span className="text-[11px] text-slate-300">Siap Diambil</span>
             </div>
@@ -337,7 +361,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
               >
                 Clear
@@ -353,10 +377,11 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
               key={kat}
               type="button"
               onClick={() => setSelectedCategory(kat)}
-              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${selectedCategory === kat
-                ? 'bg-emerald-800 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-                }`}
+              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+                selectedCategory === kat
+                  ? "bg-emerald-800 text-white shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+              }`}
             >
               {kat}
             </button>
@@ -366,120 +391,141 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
 
       {/* Grid Katalog ATK */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {isLoading ? (
-          Array.from({ length: 8 }).map((_, idx) => <CardSkeleton key={idx} />)
-        ) : (
-          sortedItems.map((item) => {
-            const isOutOfStock = item.stok <= 0;
-            const isLowStock = !isOutOfStock && item.stok <= item.stokMinimum;
+        {isLoading
+          ? Array.from({ length: 8 }).map((_, idx) => (
+              <CardSkeleton key={idx} />
+            ))
+          : sortedItems.map((item) => {
+              const isOutOfStock = item.stok <= 0;
+              const isLowStock = !isOutOfStock && item.stok <= item.stokMinimum;
 
-            return (
-              <div
-                key={item.id}
-                className={`bg-white rounded-xl border p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${isOutOfStock
-                  ? 'border-slate-200 bg-slate-50/50 opacity-75'
-                  : isLowStock
-                    ? 'border-amber-300 ring-1 ring-amber-200 hover:border-amber-400'
-                    : 'border-slate-200 hover:border-emerald-500'
+              return (
+                <div
+                  key={item.id}
+                  className={`bg-white rounded-xl border p-5 flex flex-col justify-between transition-all duration-200 hover:shadow-md ${
+                    isOutOfStock
+                      ? "border-slate-200 bg-slate-50/50 opacity-75"
+                      : isLowStock
+                        ? "border-amber-300 ring-1 ring-amber-200 hover:border-amber-400"
+                        : "border-slate-200 hover:border-emerald-500"
                   }`}
-              >
-                <div className="space-y-3">
-                  {/* Header metadata unboxed with separators */}
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="font-mono text-slate-600 font-medium">{item.kodeBarang}</span>
-                    <span>·</span>
-                    <span className="truncate max-w-[120px]">{item.kategori}</span>
-                  </div>
-
-                  {/* Title */}
-                  <div>
-                    <h3 className="font-semibold text-slate-900 text-base leading-snug line-clamp-2">
-                      {item.namaBarang}
-                    </h3>
-                    {item.spesifikasi && (
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                        {item.spesifikasi}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Location indicator */}
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span className="truncate">{item.lokasiRak || 'Gudang Utama'}</span>
-                  </div>
-                </div>
-
-                {/* Stock and Action */}
-                <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-xs text-slate-500 font-medium">Sisa Stok:</span>
-                    <div className="flex items-baseline gap-1">
-                      <span
-                        className={`text-xl font-bold font-mono tabular-nums ${isOutOfStock
-                          ? 'text-rose-600'
-                          : isLowStock
-                            ? 'text-amber-600'
-                            : 'text-emerald-700'
-                          }`}
-                      >
-                        {item.stok}
+                >
+                  <div className="space-y-3">
+                    {/* Header metadata unboxed with separators */}
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span className="font-mono text-slate-600 font-medium">
+                        {item.kodeBarang}
                       </span>
-                      <span className="text-xs text-slate-600 font-medium">{item.satuan}</span>
+                      <span>·</span>
+                      <span className="truncate max-w-[120px]">
+                        {item.kategori}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <div>
+                      <h3 className="font-semibold text-slate-900 text-base leading-snug line-clamp-2">
+                        {item.namaBarang}
+                      </h3>
+                      {item.spesifikasi && (
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+                          {item.spesifikasi}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Location indicator */}
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">
+                        {item.lokasiRak || "Gudang Utama"}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Status indicator line */}
-                  <div className="text-[11px] font-medium flex items-center gap-1">
-                    {isOutOfStock ? (
-                      <span className="text-rose-600 flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5" /> Stok Habis
+                  {/* Stock and Action */}
+                  <div className="pt-4 mt-4 border-t border-slate-100 space-y-3">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs text-slate-500 font-medium">
+                        Sisa Stok:
                       </span>
-                    ) : isLowStock ? (
-                      <span className="text-amber-600 flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5" /> Stok Menipis (Min: {item.stokMinimum})
-                      </span>
-                    ) : (
-                      <span className="text-emerald-700 flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Tersedia
-                      </span>
-                    )}
-                  </div>
+                      <div className="flex items-baseline gap-1">
+                        <span
+                          className={`text-xl font-bold font-mono tabular-nums ${
+                            isOutOfStock
+                              ? "text-rose-600"
+                              : isLowStock
+                                ? "text-amber-600"
+                                : "text-emerald-700"
+                          }`}
+                        >
+                          {item.stok}
+                        </span>
+                        <span className="text-xs text-slate-600 font-medium">
+                          {item.satuan}
+                        </span>
+                      </div>
+                    </div>
 
-                  {/* Take item button */}
-                  <button
-                    type="button"
-                    disabled={isOutOfStock}
-                    onClick={() => handleOpenModal(item)}
-                    className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${isOutOfStock
-                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                      : isLowStock
-                        ? 'bg-amber-600 text-white hover:bg-amber-700 shadow-xs'
-                        : 'bg-emerald-800 text-white hover:bg-emerald-700 shadow-xs'
+                    {/* Status indicator line */}
+                    <div className="text-[11px] font-medium flex items-center gap-1">
+                      {isOutOfStock ? (
+                        <span className="text-rose-600 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" /> Stok Habis
+                        </span>
+                      ) : isLowStock ? (
+                        <span className="text-amber-600 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" /> Stok Menipis
+                          (Min: {item.stokMinimum})
+                        </span>
+                      ) : (
+                        <span className="text-emerald-700 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Tersedia
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Take item button */}
+                    <button
+                      type="button"
+                      disabled={isOutOfStock}
+                      onClick={() => handleOpenModal(item)}
+                      className={`w-full py-2.5 px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
+                        isOutOfStock
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          : isLowStock
+                            ? "bg-amber-600 text-white hover:bg-amber-700 shadow-xs"
+                            : "bg-emerald-800 text-white hover:bg-emerald-700 shadow-xs"
                       }`}
-                  >
-                    <Package className="w-4 h-4" />
-                    <span>{isOutOfStock ? 'Stok Tidak Tersedia' : 'Ambil Barang Ini'}</span>
-                  </button>
+                    >
+                      <Package className="w-4 h-4" />
+                      <span>
+                        {isOutOfStock
+                          ? "Stok Tidak Tersedia"
+                          : "Ambil Barang Ini"}
+                      </span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          }))}
+              );
+            })}
       </div>
 
       {!isLoading && filteredItems.length === 0 && (
         <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
           <Layers className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-base font-semibold text-slate-800">Barang tidak ditemukan</h3>
+          <h3 className="text-base font-semibold text-slate-800">
+            Barang tidak ditemukan
+          </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Tidak ada item ATK yang sesuai dengan kata kunci &quot;{searchQuery}&quot;. Coba cari kata kunci
-            lain atau periksa ejaan.
+            Tidak ada item ATK yang sesuai dengan kata kunci &quot;{searchQuery}
+            &quot;. Coba cari kata kunci lain atau periksa ejaan.
           </p>
           <button
             type="button"
             onClick={() => {
-              setSearchQuery('');
-              setSelectedCategory('Semua');
+              setSearchQuery("");
+              setSelectedCategory("Semua");
             }}
             className="px-4 py-2 text-xs font-medium text-emerald-800 bg-emerald-50 rounded-lg hover:bg-emerald-100"
           >
@@ -515,7 +561,10 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSubmitRequest} className="p-6 overflow-y-auto space-y-5">
+            <form
+              onSubmit={handleSubmitRequest}
+              className="p-6 overflow-y-auto space-y-5"
+            >
               {submitError && (
                 <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 text-xs text-rose-700 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
@@ -526,14 +575,19 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
               {/* Info Barang & Jumlah Input */}
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Stok Tersedia Saat Ini:</span>
+                  <span className="text-slate-500">
+                    Stok Tersedia Saat Ini:
+                  </span>
                   <span className="font-mono font-bold text-emerald-800 text-sm">
                     {selectedItem.stok} {selectedItem.satuan}
                   </span>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
-                  <label htmlFor="jumlahInput" className="text-sm font-semibold text-slate-800">
+                  <label
+                    htmlFor="jumlahInput"
+                    className="text-sm font-semibold text-slate-800"
+                  >
                     Jumlah yang Diambil:
                   </label>
                   <div className="flex items-center gap-2">
@@ -543,7 +597,14 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                       min={1}
                       max={selectedItem.stok}
                       value={jumlah}
-                      onChange={(e) => setJumlah(Math.max(1, Math.min(selectedItem.stok, Number(e.target.value))))}
+                      onChange={(e) =>
+                        setJumlah(
+                          Math.max(
+                            1,
+                            Math.min(selectedItem.stok, Number(e.target.value)),
+                          ),
+                        )
+                      }
                       className="w-24 text-center py-1.5 px-3 bg-white border border-slate-300 rounded-lg font-mono font-bold text-slate-900 text-base focus:ring-2 focus:ring-emerald-600 focus:outline-none"
                     />
                     <span className="text-sm font-medium text-slate-600">
@@ -632,27 +693,29 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                     <button
                       type="button"
                       onClick={() => {
-                        setPhotoMode('camera');
+                        setPhotoMode("camera");
                         setCapturedPhoto(null);
                         startCamera();
                       }}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${photoMode === 'camera'
-                        ? 'bg-white text-emerald-900 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                        }`}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        photoMode === "camera"
+                          ? "bg-white text-emerald-900 shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
                     >
                       Kamera Langsung
                     </button>
                     <button
                       type="button"
                       onClick={() => {
-                        setPhotoMode('upload');
+                        setPhotoMode("upload");
                         stopCamera();
                       }}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${photoMode === 'upload'
-                        ? 'bg-white text-emerald-900 shadow-xs'
-                        : 'text-slate-600 hover:text-slate-900'
-                        }`}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        photoMode === "upload"
+                          ? "bg-white text-emerald-900 shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
                     >
                       Unggah File
                     </button>
@@ -660,7 +723,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                 </div>
 
                 {/* Subview: Kamera Langsung */}
-                {photoMode === 'camera' && (
+                {photoMode === "camera" && (
                   <div className="space-y-3">
                     {cameraError ? (
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs text-amber-800 space-y-2">
@@ -672,7 +735,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                         <button
                           type="button"
                           onClick={() => {
-                            setPhotoMode('upload');
+                            setPhotoMode("upload");
                           }}
                           className="px-3 py-1.5 bg-amber-600 text-white rounded-md text-xs font-medium hover:bg-amber-700 transition-colors"
                         >
@@ -689,7 +752,8 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                         />
                         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-slate-900/80 backdrop-blur-xs p-2 rounded-lg text-xs text-white">
                           <span className="flex items-center gap-1 text-emerald-400 font-medium">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Foto Tersimpan
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Foto
+                            Tersimpan
                           </span>
                           <button
                             type="button"
@@ -711,8 +775,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                           autoPlay
                           playsInline
                           muted
-                          className={`w-full h-48 object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''
-                            }`}
+                          className={`w-full h-48 object-cover ${
+                            facingMode === "user" ? "scale-x-[-1]" : ""
+                          }`}
                         />
                         <canvas ref={canvasRef} className="hidden" />
 
@@ -721,7 +786,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                           <button
                             type="button"
                             onClick={() => {
-                              setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
+                              setFacingMode((prev) =>
+                                prev === "user" ? "environment" : "user",
+                              );
                             }}
                             title="Beralih Kamera Depan/Belakang"
                             className="p-2 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full backdrop-blur-xs border border-white/20"
@@ -745,7 +812,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                 )}
 
                 {/* Subview: Unggah Berkas Foto */}
-                {photoMode === 'upload' && (
+                {photoMode === "upload" && (
                   <div className="space-y-3">
                     {capturedPhoto ? (
                       <div className="relative rounded-xl overflow-hidden border border-emerald-300 bg-slate-900 max-w-sm mx-auto">
@@ -756,7 +823,8 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                         />
                         <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between bg-slate-900/80 backdrop-blur-xs p-2 rounded-lg text-xs text-white">
                           <span className="flex items-center gap-1 text-emerald-400 font-medium">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> File Terpilih
+                            <CheckCircle2 className="w-3.5 h-3.5" /> File
+                            Terpilih
                           </span>
                           <button
                             type="button"
@@ -803,11 +871,18 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                   className="px-6 py-2.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-700 rounded-lg shadow-sm transition-all flex items-center gap-2 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}"
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>{isSubmitting ? 'Memproses...' : 'Konfirmasi Pengambilan ATK'}</span>
+                  <span>
+                    {isSubmitting
+                      ? "Memproses..."
+                      : "Konfirmasi Pengambilan ATK"}
+                  </span>
                 </button>
               </div>
             </form>
-            <LoadingModal isOpen={isSubmitting} message="Mencatat pengambilan barang..." />
+            <LoadingModal
+              isOpen={isSubmitting}
+              message="Mencatat pengambilan barang..."
+            />
           </div>
         </div>
       )}
@@ -833,30 +908,38 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
             <div className="p-6 space-y-4 text-xs">
               <div className="flex items-center justify-between pb-3 border-b border-dashed border-slate-300">
                 <span className="text-slate-500">No. Transaksi:</span>
-                <span className="font-mono font-bold text-slate-800">{lastReceipt.id}</span>
+                <span className="font-mono font-bold text-slate-800">
+                  {lastReceipt.id}
+                </span>
               </div>
 
               <div className="flex items-center justify-between pb-3 border-b border-dashed border-slate-300">
                 <span className="text-slate-500">Waktu:</span>
                 <span className="font-mono text-slate-800">
-                  {new Date(lastReceipt.tanggal).toLocaleString('id-ID')}
+                  {new Date(lastReceipt.tanggal).toLocaleString("id-ID")}
                 </span>
               </div>
 
               <div className="space-y-1 pb-3 border-b border-dashed border-slate-300">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Nama Pengambil:</span>
-                  <span className="font-bold text-slate-900">{lastReceipt.namaPengambil}</span>
+                  <span className="font-bold text-slate-900">
+                    {lastReceipt.namaPengambil}
+                  </span>
                 </div>
                 {lastReceipt.nipPengambil && (
                   <div className="flex justify-between text-[11px]">
                     <span className="text-slate-400">NIP/Identitas:</span>
-                    <span className="font-mono text-slate-600">{lastReceipt.nipPengambil}</span>
+                    <span className="font-mono text-slate-600">
+                      {lastReceipt.nipPengambil}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span className="text-slate-500">Bidang/Seksi:</span>
-                  <span className="text-slate-800 font-medium">{lastReceipt.bidang}</span>
+                  <span className="text-slate-800 font-medium">
+                    {lastReceipt.bidang}
+                  </span>
                 </div>
               </div>
 
@@ -866,7 +949,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({ items, onTakeItem, isLo
                   Barang Diterima:
                 </span>
                 <div className="flex items-baseline justify-between">
-                  <span className="font-bold text-slate-900 text-sm">{lastReceipt.namaBarang}</span>
+                  <span className="font-bold text-slate-900 text-sm">
+                    {lastReceipt.namaBarang}
+                  </span>
                   <span className="font-mono font-extrabold text-emerald-900 text-base">
                     {lastReceipt.jumlah} {lastReceipt.satuan}
                   </span>
