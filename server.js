@@ -2,6 +2,7 @@ import express from 'express';
 import mysql from 'mysql2/promise';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import crypto from 'crypto';
 
 // Load environment variables dari .env.local (prioritas) dan .env
 dotenv.config({ path: '.env.local' });
@@ -119,16 +120,79 @@ app.post('/api/satker', handle(async (req, res) => {
   res.json({ success: true });
 }));
 
-// ======================= LOGIN ADMIN =======================
+// Helper Session Signed Token
+const SESSION_SECRET = process.env.SESSION_SECRET || 'pena-kejaksaan-secret-key-32chars-min!!';
+const SESSION_MAX_AGE = 60 * 60 * 8; // 8 jam
+
+function createSessionToken(user) {
+  const payload = {
+    userId: user.id,
+    username: user.username,
+    role: user.role,
+    namaLengkap: user.namaLengkap,
+    expiresAt: Date.now() + SESSION_MAX_AGE * 1000,
+  };
+  const dataStr = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto.createHmac('sha256', SESSION_SECRET).update(dataStr).digest('base64url');
+  return `${dataStr}.${signature}`;
+}
+
+function verifySessionToken(token) {
+  if (!token || !token.includes('.')) return null;
+  const [dataStr, signature] = token.split('.');
+  const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(dataStr).digest('base64url');
+  if (signature !== expectedSig) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(dataStr, 'base64url').toString('utf-8'));
+    if (Date.now() > payload.expiresAt) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function getSessionCookie(req) {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return null;
+  const cookies = Object.fromEntries(cookieHeader.split(';').map(c => c.trim().split('=')));
+  return verifySessionToken(cookies['admin_session']);
+}
+
+// ======================= LOGIN ADMIN & SESSION =======================
 app.post('/api/login', handle(async (req, res) => {
   const { username, password } = req.body;
   const [users] = await db.query(
     'SELECT id, username, role, namaLengkap, status FROM admin_users WHERE username = ? AND password = ? AND status = "aktif"',
     [username, password]
   );
-  if (users.length) return res.json({ success: true, user: users[0] });
+  if (users.length) {
+    const user = users[0];
+    const token = createSessionToken(user);
+    res.setHeader('Set-Cookie', `admin_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${SESSION_MAX_AGE}`);
+    return res.json({ success: true, user });
+  }
   res.status(401).json({ success: false, message: 'Username atau password salah, atau akun dinonaktifkan.' });
 }));
+
+app.get('/api/session', handle(async (req, res) => {
+  const session = getSessionCookie(req);
+  if (!session) return res.json({ authenticated: false, user: null });
+
+  const [users] = await db.query('SELECT id, username, role, namaLengkap, status FROM admin_users WHERE id = ? AND status = "aktif"', [session.userId]);
+  if (users.length) {
+    return res.json({ authenticated: true, user: users[0] });
+  }
+  res.setHeader('Set-Cookie', 'admin_session=; HttpOnly; Path=/; Max-Age=0');
+  res.json({ authenticated: false, user: null });
+}));
+
+app.all(['/api/logout', '/api/session'], (req, res) => {
+  if (req.method === 'POST' || req.method === 'DELETE' || req.method === 'GET') {
+    res.setHeader('Set-Cookie', 'admin_session=; HttpOnly; Path=/; Max-Age=0');
+    return res.json({ success: true, message: 'Berhasil logout.' });
+  }
+  res.status(405).end();
+});
 
 // ======================= MANAJEMEN ADMIN =======================
 app.get('/api/admins', handle(async (_, res) => {

@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { getSessionFromRequest } from '@/lib/session';
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = getSessionFromRequest(req);
+    if (!session || session.role !== 'superadmin') {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Hanya superadmin yang dapat mengubah akun admin.' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const { username, role, namaLengkap, status, password } = await req.json();
 
@@ -28,10 +37,18 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = getSessionFromRequest(req);
+    if (!session || session.role !== 'superadmin') {
+      return NextResponse.json(
+        { error: 'Akses ditolak. Hanya superadmin yang dapat menghapus akun admin.' },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     await db.query('DELETE FROM admin_users WHERE id = ?', [id]);
     return NextResponse.json({ success: true });
@@ -40,4 +57,3 @@ export async function DELETE(
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
-

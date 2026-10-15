@@ -85,16 +85,36 @@ export default function App() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sim_atk_current_user');
-        if (saved) {
-          setLoggedInUser(JSON.parse(saved));
-        }
-      } catch (e) {
-        console.error('Failed to parse current user from localStorage', e);
-      }
       setIsAudioMutedState(getAudioMuted());
     }
+
+    // Verifikasi sesi login aktif ke server
+    fetch('/api/session')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setLoggedInUser(data.user);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('sim_atk_current_user', JSON.stringify(data.user));
+          }
+        } else {
+          setLoggedInUser(null);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('sim_atk_current_user');
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn('Gagal memverifikasi sesi server:', err);
+        // Fallback offline ke localStorage jika koneksi bermasalah
+        if (typeof window !== 'undefined') {
+          try {
+            const saved = localStorage.getItem('sim_atk_current_user');
+            if (saved) setLoggedInUser(JSON.parse(saved));
+          } catch {}
+        }
+      });
+
     loadSemuaData();
   }, []);
 
@@ -124,15 +144,24 @@ export default function App() {
   // Admin Login success
   const handleAdminLoginSuccess = (user: AdminUser) => {
     setLoggedInUser(user);
-    localStorage.setItem('sim_atk_current_user', JSON.stringify(user));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sim_atk_current_user', JSON.stringify(user));
+    }
     setCurrentTab('admin');
     showToast('success', `Berhasil login sebagai ${user.namaLengkap} (${user.role}).`);
   };
 
   // Admin Logout
-  const handleAdminLogout = () => {
+  const handleAdminLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
     setLoggedInUser(null);
-    localStorage.removeItem('sim_atk_current_user');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sim_atk_current_user');
+    }
     setCurrentTab('kiosk');
     showToast('alert', 'Telah keluar dari sesi Dashboard.');
   };
