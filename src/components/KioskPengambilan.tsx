@@ -62,6 +62,39 @@ const BIDANG_LIST: BidangKejaksaan[] = [
   // 'Pos Pelayanan Hukum & PTSP',
 ];
 
+const compressImage = (
+  base64Str: string,
+  maxWidth = 800,
+  quality = 0.7,
+): Promise<string> => {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      } else {
+        resolve(base64Str);
+      }
+    };
+    img.onerror = () => resolve(base64Str);
+  });
+};
+
 export const KioskPengambilan: React.FC<KioskProps> = ({
   items,
   onTakeItem,
@@ -219,15 +252,34 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Cek format gambar
     if (!file.type.startsWith("image/")) {
       alert("Mohon unggah file format gambar (JPG/PNG/WebP).");
       return;
     }
 
+    // Cek batas ukuran 2MB
+    const MAX_FILE_SIZE = 2 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      alert(
+        "Ukuran foto terlalu besar! Maksimal ukuran file adalah 2MB. Silakan pilih foto lain atau gunakan opsi Kamera.",
+      );
+      e.target.value = ""; // Reset input
+      return;
+    }
+
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const dataUrl = event.target?.result as string;
-      setCapturedPhoto(dataUrl);
+
+      try {
+        // Panggil fungsi kompresi sebelum masuk ke state
+        const compressedDataUrl = await compressImage(dataUrl, 800, 0.7);
+        setCapturedPhoto(compressedDataUrl);
+      } catch (error) {
+        console.error("Gagal melakukan kompresi gambar", error);
+        setCapturedPhoto(dataUrl);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -312,7 +364,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
   return (
     <div className="space-y-6">
       {/* Hero Welcome Banner for Kiosk */}
-      <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg border border-emerald-700/50">
+      <div className="bg-linear-to-r from-emerald-900 via-emerald-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-lg border border-emerald-700/50">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-300 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-600/40">
@@ -338,7 +390,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
             <div className="w-px h-8 bg-emerald-700/40" />
             <div className="text-center px-2">
               <span className="block text-2xl font-bold font-mono text-amber-400 tabular-nums">
-                {Array.isArray(items) ? items.filter((i) => i.stok > 0).length : 0}
+                {Array.isArray(items)
+                  ? items.filter((i) => i.stok > 0).length
+                  : 0}
               </span>
               <span className="text-[11px] text-slate-300">Siap Diambil</span>
             </div>
@@ -417,7 +471,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
                         {item.kodeBarang}
                       </span>
                       <span>·</span>
-                      <span className="truncate max-w-[120px]">
+                      <span className="truncate max-w-30">
                         {item.kategori}
                       </span>
                     </div>
