@@ -238,7 +238,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       satuan: 'Rim',
       stok: 10,
       stokMinimum: 5,
-      lokasiRak: 'Gudang ATK - Rak A1',
+      lokasiRak: '',
       spesifikasi: '',
     });
     setIsItemModalOpen(true);
