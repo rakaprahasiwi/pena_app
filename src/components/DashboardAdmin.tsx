@@ -203,7 +203,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     itemId: initialRestockItem ? initialRestockItem.id : items[0]?.id || '',
     jumlah: 10,
     tanggal: new Date().toISOString().split('T')[0],
-    dicatatOleh: satker.namaPengelola,
+    dicatatOleh: currentUser.namaLengkap,
     keterangan: 'Penerimaan persediaan ATK kantor',
   });
   const [masukSuccessMessage, setMasukSuccessMessage] = useState<string | null>(null);
