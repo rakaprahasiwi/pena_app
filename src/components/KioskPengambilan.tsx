@@ -214,6 +214,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
 
   // Take snapshot from video
   const takeSnapshot = () => {
+    setIsSubmitting(true);
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -245,10 +246,12 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
     const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
     setCapturedPhoto(dataUrl);
     stopCamera();
+    setIsSubmitting(false);
   };
 
   // Handle uploaded file
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsSubmitting(true);
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -282,6 +285,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
       }
     };
     reader.readAsDataURL(file);
+    setIsSubmitting(false);
   };
 
   // Open item request modal
