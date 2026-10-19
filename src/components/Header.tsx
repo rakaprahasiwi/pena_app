@@ -3,14 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { KejaksaanLogo } from './KejaksaanLogo';
-import { Bell, Volume2, VolumeX, ShieldCheck, LogOut, ArrowRight, PackageOpen } from 'lucide-react';
-import { AdminUser, PengaturanSatker } from '../types';
+import React from "react";
+import { KejaksaanLogo } from "./KejaksaanLogo";
+import {
+  Bell,
+  Volume2,
+  VolumeX,
+  ShieldCheck,
+  LogOut,
+  ArrowRight,
+  PackageOpen,
+} from "lucide-react";
+import { AdminUser, PengaturanSatker } from "../types";
 
 interface HeaderProps {
-  currentTab: 'kiosk' | 'admin';
-  setCurrentTab: (tab: 'kiosk' | 'admin') => void;
+  currentTab: "kiosk" | "admin";
+  setCurrentTab: (tab: "kiosk" | "admin") => void;
   isAdminLoggedIn: boolean;
   onOpenLoginModal: () => void;
   onAdminLogout: () => void;
@@ -33,21 +41,22 @@ export const Header: React.FC<HeaderProps> = ({
   isAudioMuted,
   onToggleAudioMute,
   satker,
-  currentUser
+  currentUser,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-emerald-900/60 shadow-md text-white no-print">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        {/* PERBAIKAN RESPONSIVE: Menggunakan flex-col pada HP dan md:flex-row pada layar besar, serta menghapus h-16 menjadi min-h-[4rem] */}
+        <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0 min-h-[4rem] gap-3 md:gap-0">
           {/* Zone 1: Brand Wordmark & Official Identity */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-center md:justify-start gap-3 min-w-0 w-full md:w-auto">
             <KejaksaanLogo size={40} />
             <div className="truncate">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-base sm:text-lg tracking-tight text-white whitespace-nowrap">
                   PENA
                 </span>
-                <span className="hidden md:inline text-xs text-amber-400 font-medium px-1.5 py-0.5 rounded bg-amber-400/10 border border-amber-400/20">
+                <span className="inline text-[10px] sm:text-xs text-amber-400 font-medium px-1.5 py-0.5 rounded bg-amber-400/10 border border-amber-400/20">
                   {satker.namaKejari}
                 </span>
               </div>
@@ -58,14 +67,15 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Zone 2: Navigation Switcher between Kiosk Mode & Admin Dashboard */}
-          <nav className="flex items-center bg-slate-800/90 p-1 rounded-lg border border-slate-700">
+          <nav className="flex items-center justify-center bg-slate-800/90 p-1 rounded-lg border border-slate-700 w-full sm:w-auto">
             <button
               type="button"
-              onClick={() => setCurrentTab('kiosk')}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${currentTab === 'kiosk'
-                ? 'bg-emerald-700 text-white shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
-                }`}
+              onClick={() => setCurrentTab("kiosk")}
+              className={`flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap flex-1 sm:flex-none ${
+                currentTab === "kiosk"
+                  ? "bg-emerald-700 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/60"
+              }`}
             >
               <PackageOpen className="w-4 h-4" />
               <span>Pengambilan ATK</span>
@@ -75,15 +85,16 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={() => {
                 if (isAdminLoggedIn) {
-                  setCurrentTab('admin');
+                  setCurrentTab("admin");
                 } else {
                   onOpenLoginModal();
                 }
               }}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap ${currentTab === 'admin'
-                ? 'bg-amber-600 text-white shadow-sm'
-                : 'text-slate-300 hover:text-white hover:bg-slate-700/60'
-                }`}
+              className={`flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-all whitespace-nowrap flex-1 sm:flex-none ${
+                currentTab === "admin"
+                  ? "bg-amber-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/60"
+              }`}
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Dashboard Admin</span>
@@ -98,12 +109,16 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Zone 3: Primary Actions (Audio Mute, Low Stock Alert, Admin Auth) */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-center md:justify-end gap-2 sm:gap-3 w-full md:w-auto">
             {/* Audio chime mute toggle */}
             <button
               type="button"
               onClick={onToggleAudioMute}
-              title={isAudioMuted ? 'Aktifkan Suara Peringatan' : 'Bisukan Suara Peringatan'}
+              title={
+                isAudioMuted
+                  ? "Aktifkan Suara Peringatan"
+                  : "Bisukan Suara Peringatan"
+              }
               className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors border border-transparent hover:border-slate-700"
             >
               {isAudioMuted ? (
@@ -118,10 +133,11 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenLowStockModal}
               title={`${lowStockCount} barang mencapai batas minimum stok`}
-              className={`relative p-2 rounded-lg transition-colors border ${lowStockCount > 0
-                ? 'text-rose-300 bg-rose-950/40 border-rose-800 hover:bg-rose-900/60'
-                : 'text-slate-400 hover:text-white bg-slate-800/60 border-slate-700'
-                }`}
+              className={`relative p-2 rounded-lg transition-colors border ${
+                lowStockCount > 0
+                  ? "text-rose-300 bg-rose-950/40 border-rose-800 hover:bg-rose-900/60"
+                  : "text-slate-400 hover:text-white bg-slate-800/60 border-slate-700"
+              }`}
             >
               <Bell className="w-4 h-4" />
               {lowStockCount > 0 && (
@@ -133,8 +149,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Admin session button */}
             {isAdminLoggedIn ? (
-              <div className="flex items-center gap-2 pl-1 border-l border-slate-700">
-                <span className="hidden xl:inline text-xs text-emerald-300 font-medium truncate max-w-[120px]">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
+                <span className="hidden sm:inline text-xs text-emerald-300 font-medium truncate max-w-[120px]">
                   {currentUser?.namaLengkap || "Admin"}
                 </span>
                 <button
@@ -144,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-200 bg-rose-950/60 border border-rose-800/80 rounded-lg hover:bg-rose-900 transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="inline">Logout</span>
                 </button>
               </div>
             ) : (
