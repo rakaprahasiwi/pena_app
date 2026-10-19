@@ -1007,7 +1007,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   <label className="font-semibold text-slate-700">Petugas Penerima</label>
                   <input
                     type="text"
-                    value={masukFormData.dicatatOleh}
+                    value={currentUser.namaLengkap}
                     onChange={(e) => setMasukFormData({ ...masukFormData, dicatatOleh: e.target.value })}
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:outline-none"
                   />
