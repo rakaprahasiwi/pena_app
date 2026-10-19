@@ -46,8 +46,8 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-emerald-900/60 shadow-md text-white no-print">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* PERBAIKAN RESPONSIVE: Menggunakan flex-col pada HP dan md:flex-row pada layar besar, serta menghapus h-16 menjadi min-h-[4rem] */}
-        <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0 min-h-[4rem] gap-3 md:gap-0">
+        {/* RESPONSIVE */}
+        <div className="flex flex-col md:flex-row items-center justify-between py-3 md:py-0 min-h-16 gap-3 md:gap-0">
           {/* Zone 1: Brand Wordmark & Official Identity */}
           <div className="flex items-center justify-center md:justify-start gap-3 min-w-0 w-full md:w-auto">
             <KejaksaanLogo size={40} />
@@ -150,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Admin session button */}
             {isAdminLoggedIn ? (
               <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
-                <span className="hidden sm:inline text-xs text-emerald-300 font-medium truncate max-w-[120px]">
+                <span className="hidden sm:inline text-xs text-emerald-300 font-medium truncate max-w-30">
                   {currentUser?.namaLengkap || "Admin"}
                 </span>
                 <button
