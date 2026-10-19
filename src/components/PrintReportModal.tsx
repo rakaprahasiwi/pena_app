@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { MutasiBarang, PengaturanSatker } from '../types';
-import { KejaksaanLogo } from './KejaksaanLogo';
-import { Printer, X, Download } from 'lucide-react';
-import { NAMA_BULAN } from '../utils/exportUtils';
+import React from "react";
+import { MutasiBarang, PengaturanSatker } from "../types";
+import { KejaksaanLogo } from "./KejaksaanLogo";
+import { Printer, X, Download } from "lucide-react";
+import { NAMA_BULAN } from "../utils/exportUtils";
 
 interface PrintReportModalProps {
   isOpen: boolean;
@@ -31,10 +31,10 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
   if (!isOpen) return null;
 
   const monthName = NAMA_BULAN[selectedMonth];
-  const currentDateFormatted = new Date().toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  const currentDateFormatted = new Date().toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
   const totalStokAwal = mutasiList.reduce((sum, m) => sum + m.stokAwal, 0);
@@ -42,8 +42,52 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
   const totalKeluar = mutasiList.reduce((sum, m) => sum + m.totalKeluar, 0);
   const totalStokAkhir = mutasiList.reduce((sum, m) => sum + m.stokAkhir, 0);
 
+  // FUNGSI PRINT YANG DIPERBARUI: Menggunakan metode jendela terpisah
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById("print-area");
+    if (!printContent) return;
+
+    // Buka tab/jendela baru khusus untuk cetak
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    // Tulis struktur dokumen dengan menyuntikkan script Tailwind CSS
+    // agar tabel tidak hancur dan mendukung paginasi otomatis
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Laporan Mutasi ATK - ${monthName} ${selectedYear}</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+          <style>
+            /* Aturan cetak agar tabel terpecah rapi ke halaman berikutnya */
+            @media print {
+              @page { margin: 1cm; size: A4 portrait; }
+              body { -webkit-print-color-adjust: exact; color-adjust: exact; }
+              table { page-break-inside: auto; width: 100%; }
+              tr { page-break-inside: avoid; page-break-after: auto; }
+              thead { display: table-header-group; }
+              tfoot { display: table-footer-group; }
+              /* Sembunyikan URL & Date bawaan browser jika memungkinkan */
+              @page { size: auto; margin: 10mm; }
+            }
+          </style>
+        </head>
+        <body class="bg-white text-black font-sans p-6 text-[11px]">
+          ${printContent.innerHTML}
+          <script>
+            // Beri jeda 800ms agar script Tailwind selesai membaca dan menerapkan style 
+            // sebelum dialog print browser muncul.
+            setTimeout(() => {
+              window.print();
+              window.close();
+            }, 800);
+          </script>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
   };
 
   return (
@@ -92,8 +136,11 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
           </div>
         </div>
 
-        {/* Printable Document Container */}
-        <div className="p-8 sm:p-12 overflow-y-auto bg-white text-black font-sans text-xs selection:bg-amber-100 print:p-0">
+        {/* Printable Document Container - TAMBAHKAN ID "print-area" DISINI */}
+        <div
+          id="print-area"
+          className="p-8 sm:p-12 overflow-y-auto bg-white text-black font-sans text-xs selection:bg-amber-100"
+        >
           {/* KOP SURAT DINAS RESMI KEJAKSAAN */}
           <div className="text-center relative pb-3 border-b-[3px] border-black">
             <div className="flex items-center justify-center gap-5">
@@ -134,13 +181,21 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
             <thead>
               <tr className="bg-gray-100 text-center font-bold">
                 <th className="border border-black py-2 px-1 w-8">NO</th>
-                <th className="border border-black py-2 px-2 w-24">KODE BARANG</th>
-                <th className="border border-black py-2 px-3 text-left">NAMA BARANG / SPESIFIKASI</th>
+                <th className="border border-black py-2 px-2 w-24">
+                  KODE BARANG
+                </th>
+                <th className="border border-black py-2 px-3 text-left">
+                  NAMA BARANG / SPESIFIKASI
+                </th>
                 <th className="border border-black py-2 px-2 w-16">SATUAN</th>
-                <th className="border border-black py-2 px-2 w-16">STOK AWAL</th>
+                <th className="border border-black py-2 px-2 w-16">
+                  STOK AWAL
+                </th>
                 <th className="border border-black py-2 px-2 w-16">MASUK</th>
                 <th className="border border-black py-2 px-2 w-16">KELUAR</th>
-                <th className="border border-black py-2 px-2 w-16">SISA AKHIR</th>
+                <th className="border border-black py-2 px-2 w-16">
+                  SISA AKHIR
+                </th>
                 <th className="border border-black py-2 px-2 w-20">KONDISI</th>
               </tr>
             </thead>
@@ -154,9 +209,13 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                     {m.item.kodeBarang}
                   </td>
                   <td className="border border-black py-1.5 px-3">
-                    <span className="font-semibold block">{m.item.namaBarang}</span>
+                    <span className="font-semibold block">
+                      {m.item.namaBarang}
+                    </span>
                     {m.item.spesifikasi && (
-                      <span className="text-[10px] text-gray-600 block">{m.item.spesifikasi}</span>
+                      <span className="text-[10px] text-gray-600 block">
+                        {m.item.spesifikasi}
+                      </span>
                     )}
                   </td>
                   <td className="border border-black py-1.5 px-2 text-center">
@@ -181,7 +240,10 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
               ))}
               {/* TOTAL ROW */}
               <tr className="bg-gray-100 font-bold text-center">
-                <td colSpan={4} className="border border-black py-2 px-3 text-right">
+                <td
+                  colSpan={4}
+                  className="border border-black py-2 px-3 text-right"
+                >
                   TOTAL REKAPITULASI:
                 </td>
                 <td className="border border-black py-2 px-2 font-mono tabular-nums">
@@ -196,35 +258,54 @@ export const PrintReportModal: React.FC<PrintReportModalProps> = ({
                 <td className="border border-black py-2 px-2 font-mono tabular-nums font-black">
                   {totalStokAkhir}
                 </td>
-                <td className="border border-black py-2 px-2 text-center">Lengkap</td>
+                <td className="border border-black py-2 px-2 text-center">
+                  Lengkap
+                </td>
               </tr>
             </tbody>
           </table>
 
           {/* CATATAN PENGESAHAN DAN TANDA TANGAN */}
-          <div className="mt-10 grid grid-cols-2 gap-8 text-center text-xs">
-            <div className="space-y-1">
-              <p className="font-normal text-gray-800">Mengetahui,</p>
-              <p className="font-bold uppercase">{satker.jabatanKasubbag}</p>
-              <div className="h-23" /> {/* Space for signature & stamp */}
-              <p className="font-bold uppercase underline underline-offset-2">
-                {satker.namaKasubbag}
-              </p>
-              <p className="font-mono text-[11px]">NIP. {satker.nipKasubbag}</p>
-            </div>
-
-            <div className="space-y-1">
-              <p className="font-normal text-gray-800">
-                {satker.kota}, {currentDateFormatted}
-              </p>
-              <p className="font-bold uppercase">{satker.jabatanPengelola}</p>
-              <div className="h-20" /> {/* Space for signature */}
-              <p className="font-bold uppercase underline underline-offset-2">
-                {satker.namaPengelola}
-              </p>
-              <p className="font-mono text-[11px]">NIP. {satker.nipPengelola}</p>
-            </div>
-          </div>
+          <table className="w-full mt-10 text-center text-xs border-none">
+            <tbody>
+              {/* Baris 1: Tanggal & Jabatan (Tersedia ruang untuk tanda tangan di bawahnya) */}
+              <tr>
+                <td className="w-1/2 align-top px-4 pb-20 border-none">
+                  <p className="font-normal text-gray-800">Mengetahui,</p>
+                  <p className="font-bold uppercase leading-snug">
+                    {satker.jabatanKasubbag}
+                  </p>
+                </td>
+                <td className="w-1/2 align-top px-4 pb-20 border-none">
+                  <p className="font-normal text-gray-800">
+                    {satker.kota}, {currentDateFormatted}
+                  </p>
+                  <p className="font-bold uppercase leading-snug">
+                    {satker.jabatanPengelola}
+                  </p>
+                </td>
+              </tr>
+              {/* Baris 2: Nama & NIP (Otomatis sejajar di bagian bawah) */}
+              <tr>
+                <td className="w-1/2 align-bottom px-4 border-none">
+                  <p className="font-bold uppercase underline underline-offset-2">
+                    {satker.namaKasubbag}
+                  </p>
+                  <p className="font-mono text-[11px]">
+                    NIP. {satker.nipKasubbag}
+                  </p>
+                </td>
+                <td className="w-1/2 align-bottom px-4 border-none">
+                  <p className="font-bold uppercase underline underline-offset-2">
+                    {satker.namaPengelola}
+                  </p>
+                  <p className="font-mono text-[11px]">
+                    NIP. {satker.nipPengelola}
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
