@@ -642,35 +642,6 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
                   </span>
                 </div>
 
-                {/* <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
-                  <label
-                    htmlFor="jumlahInput"
-                    className="text-sm font-semibold text-slate-800"
-                  >
-                    Jumlah yang Diambil:
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      id="jumlahInput"
-                      type="number"
-                      min={1}
-                      max={selectedItem.stok}
-                      value={jumlah}
-                      onChange={(e) =>
-                        setJumlah(
-                          Math.max(
-                            1,
-                            Math.min(selectedItem.stok, Number(e.target.value)),
-                          ),
-                        )
-                      }
-                      className="w-24 text-center py-1.5 px-3 bg-white border border-slate-300 rounded-lg font-mono font-bold text-slate-900 text-base focus:ring-2 focus:ring-emerald-600 focus:outline-none"
-                    />
-                    <span className="text-sm font-medium text-slate-600">
-                      {selectedItem.satuan}
-                    </span>
-                  </div>
-                </div> */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-200">
                   <label
                     htmlFor="jumlahInput"
