@@ -28,6 +28,8 @@ import {
   Building2,
   FileText,
   RotateCcw,
+  Plus,
+  Minus,
 } from "lucide-react";
 import { KejaksaanLogo } from "./KejaksaanLogo";
 import { CardSkeleton } from "./SkeletonScreens";
@@ -640,7 +642,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
                   </span>
                 </div>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
+                {/* <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200">
                   <label
                     htmlFor="jumlahInput"
                     className="text-sm font-semibold text-slate-800"
@@ -668,6 +670,75 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
                       {selectedItem.satuan}
                     </span>
                   </div>
+                </div> */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-200">
+                  <label
+                    htmlFor="jumlahInput"
+                    className="text-sm font-semibold text-slate-800"
+                  >
+                    Jumlah yang Diambil:
+                  </label>
+
+                  {/* --- MULAI KODE INPUT ESTETIK BARU --- */}
+                  <div className="flex items-center gap-4">
+                    {/* Wrapper Input Bergaya Modern (Pill-like dengan shadow lembut) */}
+                    <div className="flex items-center bg-white border border-emerald-100 rounded-2xl p-1.5 shadow-sm ring-1 ring-emerald-50/50">
+                      {/* Tombol Kurang (Minus) */}
+                      <button
+                        type="button"
+                        onClick={() => setJumlah(Math.max(1, jumlah - 1))}
+                        disabled={jumlah <= 1}
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-500 hover:bg-rose-100 hover:text-rose-600 active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:hover:bg-slate-50 disabled:hover:text-slate-500 disabled:active:scale-100"
+                      >
+                        <Minus className="w-4 h-4 stroke-[2.5]" />
+                      </button>
+
+                      {/* Input Angka (Tanpa panah bawaan) */}
+                      <input
+                        id="jumlahInput"
+                        type="number"
+                        min={1}
+                        max={selectedItem.stok}
+                        value={jumlah}
+                        onChange={(e) =>
+                          setJumlah(
+                            Math.max(
+                              1,
+                              Math.min(
+                                selectedItem.stok,
+                                Number(e.target.value),
+                              ),
+                            ),
+                          )
+                        }
+                        style={{ MozAppearance: "textfield" }}
+                        className="w-14 h-10 text-center font-mono font-black text-xl text-emerald-800 bg-transparent focus:outline-none appearance-none m-0 p-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+
+                      {/* Tombol Tambah (Plus) */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setJumlah(Math.min(selectedItem.stok, jumlah + 1))
+                        }
+                        disabled={jumlah >= selectedItem.stok}
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white hover:shadow-md hover:shadow-emerald-200 active:scale-95 transition-all duration-200 disabled:opacity-40 disabled:hover:bg-emerald-50 disabled:hover:text-emerald-600 disabled:hover:shadow-none disabled:active:scale-100"
+                      >
+                        <Plus className="w-4 h-4 stroke-[2.5]" />
+                      </button>
+                    </div>
+
+                    {/* Label Satuan Barang dengan Tipografi Estetik */}
+                    <div className="flex flex-col justify-center min-w-12">
+                      <span className="text-sm font-extrabold text-slate-700 uppercase tracking-widest leading-none">
+                        {selectedItem.satuan}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-400 leading-none mt-1">
+                        Satuan
+                      </span>
+                    </div>
+                  </div>
+                  {/* --- AKHIR KODE INPUT ESTETIK BARU --- */}
                 </div>
               </div>
 
