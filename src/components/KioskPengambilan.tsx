@@ -353,8 +353,9 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
       status: "Diterima Langsung",
     };
 
-    const res = await onTakeItem(newTx);
     setIsSubmitting(true);
+
+    const res = await onTakeItem(newTx);
     if (res.success) {
       stopCamera();
       setSelectedItem(null);
@@ -475,9 +476,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
                         {item.kodeBarang}
                       </span>
                       <span>·</span>
-                      <span className="truncate max-w-30">
-                        {item.kategori}
-                      </span>
+                      <span className="truncate max-w-30">{item.kategori}</span>
                     </div>
 
                     {/* Title */}
