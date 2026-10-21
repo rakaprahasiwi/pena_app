@@ -66,7 +66,7 @@ const BIDANG_LIST: BidangKejaksaan[] = [
 
 const compressImage = (
   base64Str: string,
-  maxWidth = 800,
+  maxWidth = 640,
   quality = 0.7,
 ): Promise<string> => {
   return new Promise((resolve) => {
@@ -77,6 +77,7 @@ const compressImage = (
       let width = img.width;
       let height = img.height;
 
+      // Menyesuaikan ukuran agar setara dengan resolusi takeSnapshot (maks 640px)
       if (width > maxWidth) {
         height = Math.round((height * maxWidth) / width);
         width = maxWidth;
@@ -88,6 +89,20 @@ const compressImage = (
 
       if (ctx) {
         ctx.drawImage(img, 0, 0, width, height);
+
+        // --- WATERMARK ---
+        ctx.font = "14px sans-serif";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, canvas.height - 28, canvas.width, 28);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(
+          `PENGAMBILAN ATK - KN BATANG · ${new Date().toLocaleString("id-ID")}`,
+          12,
+          canvas.height - 10,
+        );
+        // ----------------------------------------------
+
+        // Hasil akhir gambar dengan format JPEG dan kualitas 70%
         resolve(canvas.toDataURL("image/jpeg", quality));
       } else {
         resolve(base64Str);
@@ -216,7 +231,6 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
 
   // Take snapshot from video
   const takeSnapshot = () => {
-    setIsSubmitting(true);
     if (!videoRef.current || !canvasRef.current) return;
     const video = videoRef.current;
     const canvas = canvasRef.current;
@@ -226,29 +240,36 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Flip horizontally if front camera for natural selfie look
+    // 1. Simpan state/koordinat kanvas dalam posisi normal
+    ctx.save();
+
+    // 2. Flip horizontal JIKA menggunakan kamera depan
     if (facingMode === "user") {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
 
+    // 3. Gambar hasil tangkapan video (akan mengikuti efek cermin jika kamera depan)
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    // Add watermark timestamp on snapshot
+    // 4. Kembalikan state kanvas ke posisi normal (menghapus efek cermin)
+    ctx.restore();
+
+    // 5. Tambahkan watermark (Teks sekarang dijamin normal dan bisa dibaca)
     ctx.font = "14px sans-serif";
     ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
     ctx.fillRect(0, canvas.height - 28, canvas.width, 28);
     ctx.fillStyle = "#FFFFFF";
     ctx.fillText(
-      `PENGAMBILAN ATK - KEJAKSAAN NEGERI · ${new Date().toLocaleString("id-ID")}`,
+      `PENGAMBILAN ATK - KN BATANG · ${new Date().toLocaleString("id-ID")}`,
       12,
       canvas.height - 10,
     );
 
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    // 6. Simpan hasil gambar
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
     setCapturedPhoto(dataUrl);
     stopCamera();
-    setIsSubmitting(false);
   };
 
   // Handle uploaded file
@@ -279,7 +300,7 @@ export const KioskPengambilan: React.FC<KioskProps> = ({
 
       try {
         // Panggil fungsi kompresi sebelum masuk ke state
-        const compressedDataUrl = await compressImage(dataUrl, 800, 0.7);
+        const compressedDataUrl = await compressImage(dataUrl, 640, 0.7);
         setCapturedPhoto(compressedDataUrl);
       } catch (error) {
         console.error("Gagal melakukan kompresi gambar", error);
