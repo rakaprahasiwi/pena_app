@@ -121,7 +121,7 @@ app.post('/api/satker', handle(async (req, res) => {
 }));
 
 // Helper Session Signed Token
-const SESSION_SECRET = process.env.SESSION_SECRET || 'pena-kejaksaan-secret-key-32chars-min!!';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'pena-kejari-batang-sistem-web-terintegrasi';
 const SESSION_MAX_AGE = 60 * 60 * 8; // 8 jam
 
 function createSessionToken(user) {
