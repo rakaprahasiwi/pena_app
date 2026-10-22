@@ -460,7 +460,8 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       kondisiAktual = "Menipis";
     }
 
-    const matchKon = kondisiFilter === "Semua" || kondisiAktual === kondisiFilter;
+    const matchKon =
+      kondisiFilter === "Semua" || kondisiAktual === kondisiFilter;
     const match =
       trx.item.kodeBarang.toLowerCase().includes(searchLapbul.toLowerCase()) ||
       trx.item.namaBarang.toLowerCase().includes(searchLapbul.toLowerCase());
@@ -977,7 +978,10 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setMasterPage(1);
+                }}
                 placeholder="Cari nama barang, kode SKU, atau rak penyimpanan..."
                 className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
               />
@@ -985,9 +989,10 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
 
             <select
               value={categoryFilter}
-              onChange={(e) =>
-                setCategoryFilter(e.target.value as "Semua" | KategoriATK)
-              }
+              onChange={(e) => {
+                setCategoryFilter(e.target.value as "Semua" | KategoriATK);
+                setMasterPage(1);
+              }}
               className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 font-medium text-slate-700"
             >
               <option value="Semua">Semua Kategori</option>
@@ -1276,7 +1281,10 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 <input
                   type="text"
                   value={searchMasuk}
-                  onChange={(e) => setSearchMasuk(e.target.value)}
+                  onChange={(e) => {
+                    setSearchMasuk(e.target.value);
+                    setMasukPage(1);
+                  }}
                   placeholder="Cari nama barang, penerima atau kode barang..."
                   className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
                 />
@@ -1359,16 +1367,20 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <input
                 type="text"
                 value={searchKeluar}
-                onChange={(e) => setSearchKeluar(e.target.value)}
+                onChange={(e) => {
+                  setSearchKeluar(e.target.value);
+                  setKeluarPage(1);
+                }}
                 placeholder="Cari nama barang atau penerima..."
                 className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
               />
             </div>
             <select
               value={bidangFilter}
-              onChange={(e) =>
-                setBidangFilter(e.target.value as "Semua" | BidangKejaksaan)
-              }
+              onChange={(e) => {
+                setBidangFilter(e.target.value as "Semua" | BidangKejaksaan);
+                setKeluarPage(1);
+              }}
               className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 font-medium text-slate-700"
             >
               <option value="Semua">Semua Bidang</option>
