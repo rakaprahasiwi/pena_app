@@ -21,6 +21,11 @@ export type BidangKejaksaan =
   // | 'Kelompok Jabatan Fungsional'
   // | 'Pos Pelayanan Hukum & PTSP';
 
+  export type KondisiATK =
+  | 'Tersedia Baik'
+  | 'Menipis'
+  | 'Habis';
+
 export interface ItemATK {
   id: string;
   kodeBarang: string;

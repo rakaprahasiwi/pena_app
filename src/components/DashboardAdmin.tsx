@@ -8,6 +8,7 @@ import {
   MutasiBarang,
   AdminUser,
   BidangKejaksaan,
+  KondisiATK,
 } from "../types";
 import {
   Package,
@@ -86,6 +87,8 @@ const BIDANG_LIST: BidangKejaksaan[] = [
   "Seksi Pengelolaan Barang Bukti dan Barang Rampasan (PAPBB)",
 ];
 
+const KONDISI_LIST: KondisiATK[] = ["Tersedia Baik", "Menipis", "Habis"];
+
 export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   items,
   transaksiMasuk,
@@ -108,12 +111,16 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [searchKeluar, setSearchKeluar] = useState("");
   const [searchMasuk, setSearchMasuk] = useState("");
   const [searchAdmin, setSearchAdmin] = useState("");
+  const [searchLapbul, setSearchLapbul] = useState("");
 
   //set search dan filter kategori
   const [categoryFilter, setCategoryFilter] = useState<"Semua" | KategoriATK>(
     "Semua",
   );
   const [bidangFilter, setBidangFilter] = useState<"Semua" | BidangKejaksaan>(
+    "Semua",
+  );
+  const [kondisiFilter, setKondisiFilter] = useState<"Semua" | KondisiATK>(
     "Semua",
   );
 
@@ -444,6 +451,23 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     return match;
   });
 
+  // Filter Riwayat Laporan Bulanan
+  const filteredLapbul = monthlyMutations.filter((trx) => {
+    let kondisiAktual: KondisiATK = "Tersedia Baik";
+    if (trx.stokAkhir <= 0) {
+      kondisiAktual = "Habis";
+    } else if (trx.stokAkhir <= trx.item.stokMinimum) {
+      kondisiAktual = "Menipis";
+    }
+
+    const matchKon = kondisiFilter === "Semua" || kondisiAktual === kondisiFilter;
+    const match =
+      trx.item.kodeBarang.toLowerCase().includes(searchLapbul.toLowerCase()) ||
+      trx.item.namaBarang.toLowerCase().includes(searchLapbul.toLowerCase());
+
+    return matchKon && match;
+  });
+
   const paginatedMaster = filteredMasterItems.slice(
     (masterPage - 1) * ITEMS_PER_PAGE,
     masterPage * ITEMS_PER_PAGE,
@@ -456,7 +480,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     (keluarPage - 1) * ITEMS_PER_PAGE,
     keluarPage * ITEMS_PER_PAGE,
   );
-  const paginatedLaporan = monthlyMutations.slice(
+  const paginatedLaporan = filteredLapbul.slice(
     (laporanPage - 1) * ITEMS_PER_PAGE,
     laporanPage * ITEMS_PER_PAGE,
   );
@@ -1523,7 +1547,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                 type="button"
                 onClick={() =>
                   exportMonthlyReportToExcel(
-                    monthlyMutations,
+                    filteredLapbul,
                     transaksiKeluar,
                     reportMonth,
                     reportYear,
@@ -1547,6 +1571,38 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
             </div>
           </div>
 
+          {/* Search Filter Laporan Bulanan */}
+          <div className="flex flex-col md:flex-row gap-3 pt-2 border-t border-slate-100">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                value={searchLapbul}
+                onChange={(e) => {
+                  setSearchLapbul(e.target.value);
+                  setLaporanPage(1);
+                }}
+                placeholder="Cari Kode Barang, Nama Barang, Status..."
+                className="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white"
+              />
+            </div>
+            <select
+              value={kondisiFilter}
+              onChange={(e) => {
+                setKondisiFilter(e.target.value as "Semua" | KondisiATK);
+                setLaporanPage(1);
+              }}
+              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 font-medium text-slate-700"
+            >
+              <option value="Semua">Semua Kondisi</option>
+              {KONDISI_LIST.map((k) => (
+                <option key={k} value={k}>
+                  {k}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Laporan Table */}
           <div className="overflow-x-auto border border-slate-200 rounded-xl">
             <table className="w-full text-left text-xs">
@@ -1560,7 +1616,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
                   <th className="py-3 px-3 text-right">Masuk</th>
                   <th className="py-3 px-3 text-right">Keluar</th>
                   <th className="py-3 px-3 text-right">Sisa Akhir</th>
-                  <th className="py-3 px-3">Status Fisik</th>
+                  <th className="py-3 px-3">Kondisi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -1609,7 +1665,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
             </table>
             <Pagination
               current={laporanPage}
-              total={monthlyMutations.length}
+              total={filteredLapbul.length}
               onPageChange={setLaporanPage}
             />
           </div>
@@ -2340,13 +2396,13 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       <PrintReportModal
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
-        mutasiList={monthlyMutations}
+        mutasiList={filteredLapbul}
         selectedMonth={reportMonth}
         selectedYear={reportYear}
         satker={satker}
         onExportExcel={() =>
           exportMonthlyReportToExcel(
-            monthlyMutations,
+            filteredLapbul,
             transaksiKeluar,
             reportMonth,
             reportYear,
