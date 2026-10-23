@@ -1,24 +1,25 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import * as XLSX from 'xlsx';
-import { ItemATK, TransaksiMasuk, TransaksiKeluar, PengaturanSatker, MutasiBarang } from '../types';
+import * as XLSX from "xlsx";
+import {
+  ItemATK,
+  TransaksiMasuk,
+  TransaksiKeluar,
+  PengaturanSatker,
+  MutasiBarang,
+} from "../types";
 
 export const NAMA_BULAN = [
-  'Januari',
-  'Februari',
-  'Maret',
-  'April',
-  'Mei',
-  'Juni',
-  'Juli',
-  'Agustus',
-  'September',
-  'Oktober',
-  'November',
-  'Desember',
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
 /**
@@ -29,7 +30,7 @@ export function calculateMonthlyMutation(
   transaksiMasuk: TransaksiMasuk[],
   transaksiKeluar: TransaksiKeluar[],
   selectedMonth: number, // 0-indexed (0 = Januari, 11 = Desember)
-  selectedYear: number
+  selectedYear: number,
 ): MutasiBarang[] {
   return items.map((item) => {
     // Current stock in system
@@ -40,7 +41,9 @@ export function calculateMonthlyMutation(
       .filter((t) => {
         if (t.itemId !== item.id) return false;
         const d = new Date(t.tanggal);
-        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+        return (
+          d.getMonth() === selectedMonth && d.getFullYear() === selectedYear
+        );
       })
       .reduce((sum, t) => sum + t.jumlah, 0);
 
@@ -49,30 +52,50 @@ export function calculateMonthlyMutation(
       .filter((t) => {
         if (t.itemId !== item.id) return false;
         const d = new Date(t.tanggal);
-        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+        return (
+          d.getMonth() === selectedMonth && d.getFullYear() === selectedYear
+        );
       })
       .reduce((sum, t) => sum + t.jumlah, 0);
 
     // Calculate outgoing after selected period (to back-calculate historical stock if viewing a past month)
-    const afterPeriodStart = new Date(selectedYear, selectedMonth + 1, 1).getTime();
-    
+    const afterPeriodStart = new Date(
+      selectedYear,
+      selectedMonth + 1,
+      1,
+    ).getTime();
+
     const incomingAfter = transaksiMasuk
-      .filter((t) => t.itemId === item.id && new Date(t.tanggal).getTime() >= afterPeriodStart)
+      .filter(
+        (t) =>
+          t.itemId === item.id &&
+          new Date(t.tanggal).getTime() >= afterPeriodStart,
+      )
       .reduce((sum, t) => sum + t.jumlah, 0);
 
     const outgoingAfter = transaksiKeluar
-      .filter((t) => t.itemId === item.id && new Date(t.tanggal).getTime() >= afterPeriodStart)
+      .filter(
+        (t) =>
+          t.itemId === item.id &&
+          new Date(t.tanggal).getTime() >= afterPeriodStart,
+      )
       .reduce((sum, t) => sum + t.jumlah, 0);
 
     // Stok akhir pada akhir bulan yang dipilih
     // currentStock = stockAtEndOfPeriod + incomingAfter - outgoingAfter
     // => stockAtEndOfPeriod = currentStock - incomingAfter + outgoingAfter
-    const stokAkhirPeriode = Math.max(0, currentStock - incomingAfter + outgoingAfter);
+    const stokAkhirPeriode = Math.max(
+      0,
+      currentStock - incomingAfter + outgoingAfter,
+    );
 
     // Stok awal pada awal bulan yang dipilih
     // stokAkhirPeriode = stokAwal + incomingInPeriod - outgoingInPeriod
     // => stokAwal = stokAkhirPeriode - incomingInPeriod + outgoingInPeriod
-    const stokAwalPeriode = Math.max(0, stokAkhirPeriode - incomingInPeriod + outgoingInPeriod);
+    const stokAwalPeriode = Math.max(
+      0,
+      stokAkhirPeriode - incomingInPeriod + outgoingInPeriod,
+    );
 
     return {
       item,
@@ -80,7 +103,12 @@ export function calculateMonthlyMutation(
       totalMasuk: incomingInPeriod,
       totalKeluar: outgoingInPeriod,
       stokAkhir: stokAkhirPeriode,
-      kondisi: stokAkhirPeriode === 0 ? 'Habis' : stokAkhirPeriode <= item.stokMinimum ? 'Menipis' : 'Baik/Tersedia',
+      kondisi:
+        stokAkhirPeriode === 0
+          ? "Habis"
+          : stokAkhirPeriode <= item.stokMinimum
+            ? "Menipis"
+            : "Baik/Tersedia",
     };
   });
 }
@@ -93,7 +121,7 @@ export function exportMonthlyReportToExcel(
   transaksiKeluar: TransaksiKeluar[],
   selectedMonth: number,
   selectedYear: number,
-  satker: PengaturanSatker
+  satker: PengaturanSatker,
 ): void {
   const monthName = NAMA_BULAN[selectedMonth];
   const workbook = XLSX.utils.book_new();
@@ -107,18 +135,18 @@ export function exportMonthlyReportToExcel(
     [`PERIODE: ${monthName.toUpperCase()} ${selectedYear}`],
     [],
     [
-      'No',
-      'Kode Barang',
-      'Nama Barang ATK',
-      'Kategori',
-      'Satuan',
-      'Stok Awal',
-      'Masuk',
-      'Keluar',
-      'Sisa Stok Akhir',
-      'Batas Minimum',
-      'Status Stok',
-      'Lokasi Penyimpanan',
+      "No",
+      "Kode Barang",
+      "Nama Barang ATK",
+      "Kategori",
+      "Satuan",
+      "Stok Awal",
+      "Masuk",
+      "Keluar",
+      "Sisa Stok Akhir",
+      "Batas Minimum",
+      "Status Stok",
+      "Lokasi Penyimpanan",
     ],
   ];
 
@@ -133,7 +161,11 @@ export function exportMonthlyReportToExcel(
     m.totalKeluar,
     m.stokAkhir,
     m.item.stokMinimum,
-    m.stokAkhir <= 0 ? 'HABIS' : m.stokAkhir <= m.item.stokMinimum ? 'PERLU RESTOCK' : 'AMAN',
+    m.stokAkhir <= 0
+      ? "HABIS"
+      : m.stokAkhir <= m.item.stokMinimum
+        ? "PERLU RESTOCK"
+        : "AMAN",
     m.item.lokasiRak,
   ]);
 
@@ -144,38 +176,68 @@ export function exportMonthlyReportToExcel(
   const totalStokAkhir = mutasiList.reduce((acc, m) => acc + m.stokAkhir, 0);
 
   const footerRow = [
-    'TOTAL',
-    '',
-    '',
-    '',
-    '',
+    "TOTAL",
+    "",
+    "",
+    "",
+    "",
     totalStokAwal,
     totalMasuk,
     totalKeluar,
     totalStokAkhir,
-    '',
-    '',
-    '',
+    "",
+    "",
+    "",
   ];
 
   const signatures = [
     [],
     [],
-    ['', '', '', '', 'Mengetahui,', '', '', '', satker.kota + `, ${new Date().toLocaleDateString('id-ID')}`],
-    ['', '', '', '', satker.jabatanKasubbag, '', '', '', satker.jabatanPengelola],
+    [
+      "",
+      "",
+      "",
+      "",
+      "Mengetahui,",
+      "",
+      "",
+      "",
+      satker.kota + `, ${new Date().toLocaleDateString("id-ID")}`,
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      satker.jabatanKasubbag,
+      "",
+      "",
+      "",
+      satker.jabatanPengelola,
+    ],
     [],
     [],
     [],
-    ['', '', '', '', satker.namaKasubbag, '', '', '', satker.namaPengelola],
-    ['', '', '', '', `NIP. ${satker.nipKasubbag}`, '', '', '', `NIP. ${satker.nipPengelola}`],
+    ["", "", "", "", satker.namaKasubbag, "", "", "", satker.namaPengelola],
+    [
+      "",
+      "",
+      "",
+      "",
+      `NIP. ${satker.nipKasubbag}`,
+      "",
+      "",
+      "",
+      `NIP. ${satker.nipPengelola}`,
+    ],
   ];
 
   const fullSheetData = [...headers, ...rows, footerRow, ...signatures];
   const worksheet = XLSX.utils.aoa_to_sheet(fullSheetData);
 
   // Set column widths
-  worksheet['!cols'] = [
-    { wch: 5 },  // No
+  worksheet["!cols"] = [
+    { wch: 5 }, // No
     { wch: 15 }, // Kode
     { wch: 38 }, // Nama
     { wch: 22 }, // Kategori
@@ -198,19 +260,31 @@ export function exportMonthlyReportToExcel(
   });
 
   const detailHeaders = [
-    [`RINCIAN PENGELUARAN ATK PERIODE: ${monthName.toUpperCase()} ${selectedYear}`],
+    [
+      `RINCIAN PENGELUARAN ATK PERIODE: ${monthName.toUpperCase()} ${selectedYear}`,
+    ],
     [],
-    ['No', 'Waktu Pengambilan', 'Nama Pengambil', 'NIP / Identitas', 'Seksi / Bidang', 'Nama Barang ATK', 'Jumlah', 'Satuan', 'Keperluan Penggunaan'],
+    [
+      "No",
+      "Waktu Pengambilan",
+      "Nama Pengambil",
+      "NIP / Identitas",
+      "Seksi / Bidang",
+      "Nama Barang ATK",
+      "Jumlah",
+      "Satuan",
+      "Keperluan Penggunaan",
+    ],
   ];
 
   const detailRows = keluarInPeriod.map((t, idx) => {
     const dt = new Date(t.tanggal);
-    const formattedDate = `${dt.getDate()} ${NAMA_BULAN[dt.getMonth()]} ${dt.getFullYear()} ${dt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+    const formattedDate = `${dt.getDate()} ${NAMA_BULAN[dt.getMonth()]} ${dt.getFullYear()} ${dt.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}`;
     return [
       idx + 1,
       formattedDate,
       t.namaPengambil,
-      t.nipPengambil || '-',
+      t.nipPengambil || "-",
       t.bidang,
       t.namaBarang,
       t.jumlah,
@@ -219,8 +293,11 @@ export function exportMonthlyReportToExcel(
     ];
   });
 
-  const detailSheet = XLSX.utils.aoa_to_sheet([...detailHeaders, ...detailRows]);
-  detailSheet['!cols'] = [
+  const detailSheet = XLSX.utils.aoa_to_sheet([
+    ...detailHeaders,
+    ...detailRows,
+  ]);
+  detailSheet["!cols"] = [
     { wch: 5 },
     { wch: 22 },
     { wch: 25 },
@@ -235,6 +312,6 @@ export function exportMonthlyReportToExcel(
   XLSX.utils.book_append_sheet(workbook, detailSheet, `Detail Pengambilan`);
 
   // Download the Excel file
-  const fileName = `Laporan_Mutasi_ATK_${satker.namaKejari.replace(/\s+/g, '_')}_${monthName}_${selectedYear}.xlsx`;
+  const fileName = `Laporan_Mutasi_ATK_${satker.namaKejari.replace(/\s+/g, "_")}_${monthName}_${selectedYear}.xlsx`;
   XLSX.writeFile(workbook, fileName);
 }

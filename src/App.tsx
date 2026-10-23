@@ -1,39 +1,33 @@
-'use client';
+"use client";
 
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   ItemATK,
   TransaksiMasuk,
   TransaksiKeluar,
   PengaturanSatker,
   AdminUser,
-} from './types';
+} from "./types";
 import {
   getStoredItems,
-  saveSingleItem,
-  deleteStoredItem,
   getStoredTransaksiMasuk,
-  addStoredTransaksiMasuk,
   getStoredTransaksiKeluar,
-  addStoredTransaksiKeluar,
   getStoredSatker,
-  saveStoredSatker,
   resetAllDataToDefault,
-} from './utils/storage';
-import { playAlertChime, getAudioMuted, setAudioMuted } from './utils/audioAlert';
-import { Header } from './components/Header';
-import { KioskPengambilan } from './components/KioskPengambilan';
-import { DashboardAdmin } from './components/DashboardAdmin';
-import { LoginModal } from './components/LoginModal';
-import { LowStockAlertModal } from './components/LowStockAlertModal';
-import { KejaksaanLogo } from './components/KejaksaanLogo';
-import { AppLoadingSkeleton } from './components/SkeletonScreens';
-import { AlertTriangle, CheckCircle2, Volume2, Shield } from 'lucide-react';
+} from "./utils/storage";
+import {
+  playAlertChime,
+  getAudioMuted,
+  setAudioMuted,
+} from "./utils/audioAlert";
+import { Header } from "./components/Header";
+import { KioskPengambilan } from "./components/KioskPengambilan";
+import { DashboardAdmin } from "./components/DashboardAdmin";
+import { LoginModal } from "./components/LoginModal";
+import { LowStockAlertModal } from "./components/LowStockAlertModal";
+import { KejaksaanLogo } from "./components/KejaksaanLogo";
+import { AppLoadingSkeleton } from "./components/SkeletonScreens";
+import { AlertTriangle, CheckCircle2, Shield } from "lucide-react";
 
 export default function App() {
   const [items, setItems] = useState<ItemATK[]>([]);
@@ -43,7 +37,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Current main view tab: 'kiosk' (Public / No login) or 'admin' (Admin Dashboard)
-  const [currentTab, setCurrentTab] = useState<'kiosk' | 'admin'>('kiosk');
+  const [currentTab, setCurrentTab] = useState<"kiosk" | "admin">("kiosk");
 
   // Admin authentication state
   const [loggedInUser, setLoggedInUser] = useState<AdminUser | null>(null);
@@ -57,19 +51,24 @@ export default function App() {
   const [isLowStockModalOpen, setIsLowStockModalOpen] = useState(false);
 
   // Quick restock target item when navigating from alert modal
-  const [initialRestockItem, setInitialRestockItem] = useState<ItemATK | null>(null);
+  const [initialRestockItem, setInitialRestockItem] = useState<ItemATK | null>(
+    null,
+  );
 
   // Toast notification state
-  const [toast, setToast] = useState<{ type: 'success' | 'alert'; message: string } | null>(null);
+  const [toast, setToast] = useState<{
+    type: "success" | "alert";
+    message: string;
+  } | null>(null);
 
   // Refresh data on mount
   const loadSemuaData = async () => {
     try {
       const [resItems, resMasuk, resKeluar, resSatker] = await Promise.all([
-        fetch('/api/items').then(r => r.json()),
-        fetch('/api/masuk').then(r => r.json()),
-        fetch('/api/keluar').then(r => r.json()),
-        fetch('/api/satker').then(r => r.json()),
+        fetch("/api/items").then((r) => r.json()),
+        fetch("/api/masuk").then((r) => r.json()),
+        fetch("/api/keluar").then((r) => r.json()),
+        fetch("/api/satker").then((r) => r.json()),
       ]);
       setItems(resItems || []);
       setTransaksiMasuk(resMasuk);
@@ -77,39 +76,42 @@ export default function App() {
       setSatker(resSatker);
     } catch (error) {
       console.error("Gagal terhubung ke database", error);
-      showToast('alert', 'Gagal terhubung ke database server.');
+      showToast("alert", "Gagal terhubung ke database server.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       setIsAudioMutedState(getAudioMuted());
     }
 
     // Verifikasi sesi login aktif ke server
-    fetch('/api/session')
+    fetch("/api/session")
       .then((r) => r.json())
       .then((data) => {
         if (data.authenticated && data.user) {
           setLoggedInUser(data.user);
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('sim_atk_current_user', JSON.stringify(data.user));
+          if (typeof window !== "undefined") {
+            localStorage.setItem(
+              "sim_atk_current_user",
+              JSON.stringify(data.user),
+            );
           }
         } else {
           setLoggedInUser(null);
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('sim_atk_current_user');
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("sim_atk_current_user");
           }
         }
       })
       .catch((err) => {
-        console.warn('Gagal memverifikasi sesi server:', err);
+        console.warn("Gagal memverifikasi sesi server:", err);
         // Fallback offline ke localStorage jika koneksi bermasalah
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           try {
-            const saved = localStorage.getItem('sim_atk_current_user');
+            const saved = localStorage.getItem("sim_atk_current_user");
             if (saved) setLoggedInUser(JSON.parse(saved));
           } catch {}
         }
@@ -120,11 +122,11 @@ export default function App() {
 
   // Calculate low stock items
   // const lowStockItems = items.filter((item) => item.stok <= item.stokMinimum);
-  const lowStockItems = Array.isArray(items) 
-  ? items.filter((item) => item.stok <= item.stokMinimum) 
-  : [];
+  const lowStockItems = Array.isArray(items)
+    ? items.filter((item) => item.stok <= item.stokMinimum)
+    : [];
 
-  const showToast = (type: 'success' | 'alert', message: string) => {
+  const showToast = (type: "success" | "alert", message: string) => {
     setToast({ type, message });
     setTimeout(() => {
       setToast(null);
@@ -138,44 +140,47 @@ export default function App() {
     setAudioMuted(nextState);
     if (!nextState) {
       playAlertChime();
-      showToast('success', 'Suara peringatan lonceng diaktifkan.');
+      showToast("success", "Suara peringatan lonceng diaktifkan.");
     } else {
-      showToast('alert', 'Suara peringatan lonceng dibisukan.');
+      showToast("alert", "Suara peringatan lonceng dibisukan.");
     }
   };
 
   // Admin Login success
   const handleAdminLoginSuccess = (user: AdminUser) => {
     setLoggedInUser(user);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sim_atk_current_user', JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("sim_atk_current_user", JSON.stringify(user));
     }
-    setCurrentTab('admin');
-    showToast('success', `Berhasil login sebagai ${user.namaLengkap} (${user.role}).`);
+    setCurrentTab("admin");
+    showToast(
+      "success",
+      `Berhasil login sebagai ${user.namaLengkap} (${user.role}).`,
+    );
   };
 
   // Admin Logout
   const handleAdminLogout = async () => {
     try {
-      await fetch('/api/logout', { method: 'POST' });
+      await fetch("/api/logout", { method: "POST" });
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error("Logout error:", err);
     }
     setLoggedInUser(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('sim_atk_current_user');
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("sim_atk_current_user");
     }
-    setCurrentTab('kiosk');
-    showToast('alert', 'Telah keluar dari sesi Dashboard.');
+    setCurrentTab("kiosk");
+    showToast("alert", "Telah keluar dari sesi Dashboard.");
   };
 
   // Handle Taking ATK (Public Kiosk)
   const handleTakeItem = async (tx: TransaksiKeluar) => {
     try {
-      const res = await fetch('/api/keluar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tx)
+      const res = await fetch("/api/keluar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tx),
       });
       const data = await res.json();
 
@@ -185,54 +190,63 @@ export default function App() {
 
         if (data.isLowStockNow) {
           playAlertChime();
-          showToast('alert', `PERINGATAN: Stok "${tx.namaBarang}" kini mencapai batas minimum!`);
+          showToast(
+            "alert",
+            `PERINGATAN: Stok "${tx.namaBarang}" kini mencapai batas minimum!`,
+          );
         } else {
-          showToast('success', `Pengambilan ${tx.jumlah} ${tx.satuan} berhasil dicatat.`);
+          showToast(
+            "success",
+            `Pengambilan ${tx.jumlah} ${tx.satuan} berhasil dicatat.`,
+          );
         }
       }
       return data; // { success: true/false, message?, isLowStockNow? }
     } catch (e) {
-      return { success: false, message: 'Koneksi ke server terputus.' };
+      return { success: false, message: "Koneksi ke server terputus." };
     }
   };
 
   // CRUD Item Handlers
   const handleSaveItem = async (item: ItemATK) => {
-    await fetch('/api/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(item)
+    await fetch("/api/items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
     });
     await loadSemuaData();
-    showToast('success', `Data barang "${item.namaBarang}" berhasil disimpan ke Database.`);
+    showToast(
+      "success",
+      `Data barang "${item.namaBarang}" berhasil disimpan ke Database.`,
+    );
   };
 
   const handleDeleteItem = async (id: string) => {
-    await fetch(`/api/items/${id}`, { method: 'DELETE' });
+    await fetch(`/api/items/${id}`, { method: "DELETE" });
     await loadSemuaData();
-    showToast('alert', 'Barang berhasil dihapus dari database.');
+    showToast("alert", "Barang berhasil dihapus dari database.");
   };
 
   // Add Incoming Stock (Barang Masuk)
   const handleAddMasuk = async (tx: TransaksiMasuk) => {
-    await fetch('/api/masuk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tx)
+    await fetch("/api/masuk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tx),
     });
     await loadSemuaData();
-    showToast('success', `Penerimaan stok masuk berhasil disimpan.`);
+    showToast("success", `Penerimaan stok masuk berhasil disimpan.`);
   };
 
   // Save Satker Profile
   const handleSaveSatker = async (newSatker: PengaturanSatker) => {
-    await fetch('/api/satker', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newSatker)
+    await fetch("/api/satker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newSatker),
     });
     setSatker(newSatker);
-    showToast('success', 'Identitas Satker berhasil diperbarui di database.');
+    showToast("success", "Identitas Satker berhasil diperbarui di database.");
   };
 
   // Reset Demo Data
@@ -242,7 +256,7 @@ export default function App() {
     setTransaksiMasuk(getStoredTransaksiMasuk());
     setTransaksiKeluar(getStoredTransaksiKeluar());
     setSatker(getStoredSatker());
-    showToast('success', 'Semua data contoh berhasil dikembalikan ke default.');
+    showToast("success", "Semua data contoh berhasil dikembalikan ke default.");
   };
 
   // Quick Restock from Low Stock Alert Modal
@@ -251,7 +265,7 @@ export default function App() {
     if (!isAdminLoggedIn) {
       setIsLoginModalOpen(true);
     } else {
-      setCurrentTab('admin');
+      setCurrentTab("admin");
     }
   };
 
@@ -281,12 +295,13 @@ export default function App() {
       {toast && (
         <div className="fixed bottom-5 right-5 z-50 max-w-md animate-in slide-in-from-bottom-5 duration-200">
           <div
-            className={`p-4 rounded-xl shadow-xl border flex items-start gap-3 ${toast.type === 'alert'
-              ? 'bg-rose-900 text-white border-rose-700'
-              : 'bg-emerald-900 text-white border-emerald-700'
-              }`}
+            className={`p-4 rounded-xl shadow-xl border flex items-start gap-3 ${
+              toast.type === "alert"
+                ? "bg-rose-900 text-white border-rose-700"
+                : "bg-emerald-900 text-white border-emerald-700"
+            }`}
           >
-            {toast.type === 'alert' ? (
+            {toast.type === "alert" ? (
               <AlertTriangle className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
             ) : (
               <CheckCircle2 className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
@@ -300,7 +315,7 @@ export default function App() {
 
       {/* Main Viewport Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {currentTab === 'kiosk' ? (
+        {currentTab === "kiosk" ? (
           <KioskPengambilan items={items} onTakeItem={handleTakeItem} />
         ) : isAdminLoggedIn ? (
           <DashboardAdmin
@@ -326,8 +341,9 @@ export default function App() {
               Akses Khusus Administrator BMN
             </h2>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Halaman ini diperuntukkan bagi Pengelola Barang Milik Negara (BMN) dan Urusan Perlengkapan
-              Kejaksaan Negeri untuk mengelola master data, barang masuk, dan laporan bulanan dinas.
+              Halaman ini diperuntukkan bagi Pengelola Barang Milik Negara (BMN)
+              dan Urusan Perlengkapan Kejaksaan Negeri untuk mengelola master
+              data, barang masuk, dan laporan bulanan dinas.
             </p>
             <button
               type="button"

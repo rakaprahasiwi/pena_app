@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 export type KategoriATK =
   | 'Kertas & Buku'
   | 'Alat Tulis & Pena'
@@ -18,8 +13,6 @@ export type BidangKejaksaan =
   | 'Seksi Tindak Pidana Khusus (Pidsus)'
   | 'Seksi Perdata dan Tata Usaha Negara (Datun)'
   | 'Seksi Pengelolaan Barang Bukti dan Barang Rampasan (PAPBB)';
-  // | 'Kelompok Jabatan Fungsional'
-  // | 'Pos Pelayanan Hukum & PTSP';
 
   export type KondisiATK =
   | 'Tersedia Baik'
@@ -47,8 +40,6 @@ export interface TransaksiMasuk {
   kategori: KategoriATK;
   satuan: string;
   jumlah: number;
-  // sumberPengadaan: string; // misal: DIPA Satker 2026, Droping Kejati, Rekanan Pengadaan
-  // nomorDokumen: string; // misal: SPK/04/BMN/2026, BAST/01/ATK/2026
   tanggal: string; // YYYY-MM-DD
   dicatatOleh: string;
   keterangan?: string;

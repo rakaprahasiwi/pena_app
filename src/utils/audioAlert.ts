@@ -1,22 +1,17 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 // Web Audio API chime / bell synthesizer for low stock alert
 let audioCtx: AudioContext | null = null;
 let isMuted = false;
 
 export function setAudioMuted(muted: boolean) {
   isMuted = muted;
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('sim_atk_sound_muted', muted ? 'true' : 'false');
+  if (typeof window !== "undefined") {
+    localStorage.setItem("sim_atk_sound_muted", muted ? "true" : "false");
   }
 }
 
 export function getAudioMuted(): boolean {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('sim_atk_sound_muted') === 'true';
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("sim_atk_sound_muted") === "true";
   }
   return isMuted;
 }
@@ -24,14 +19,17 @@ export function getAudioMuted(): boolean {
 export function playAlertChime(): void {
   if (getAudioMuted()) return;
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     if (!AudioContextClass) return;
 
-    if (!audioCtx || audioCtx.state === 'closed') {
+    if (!audioCtx || audioCtx.state === "closed") {
       audioCtx = new AudioContextClass();
     }
 
-    if (audioCtx.state === 'suspended') {
+    if (audioCtx.state === "suspended") {
       audioCtx.resume();
     }
 
@@ -41,7 +39,7 @@ export function playAlertChime(): void {
     const osc1 = audioCtx.createOscillator();
     const gain1 = audioCtx.createGain();
 
-    osc1.type = 'sine';
+    osc1.type = "sine";
     osc1.frequency.setValueAtTime(880, now);
     osc1.frequency.exponentialRampToValueAtTime(860, now + 0.6);
 
@@ -58,7 +56,7 @@ export function playAlertChime(): void {
     const osc2 = audioCtx.createOscillator();
     const gain2 = audioCtx.createGain();
 
-    osc2.type = 'triangle';
+    osc2.type = "triangle";
     osc2.frequency.setValueAtTime(587.33, now + 0.15);
     osc2.frequency.exponentialRampToValueAtTime(580, now + 0.9);
 
@@ -71,6 +69,6 @@ export function playAlertChime(): void {
     osc2.start(now + 0.15);
     osc2.stop(now + 0.9);
   } catch (err) {
-    console.warn('Audio alert could not play:', err);
+    console.warn("Audio alert could not play:", err);
   }
 }

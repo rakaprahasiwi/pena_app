@@ -1,5 +1,5 @@
 {
-  "name": "SIM-ATK Kejaksaan Negeri",
+  "name": "PENA Kejaksaan Negeri Batang",
   "description": "Sistem informasi pencatatan keluar-masuk ATK kantor Kejaksaan Negeri dengan kiosk pengambilan berkamera, CRUD barang, peringatan stok otomatis, dan laporan bulanan.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
