@@ -50,7 +50,10 @@ interface DashboardAdminProps {
   transaksiKeluar: TransaksiKeluar[];
   satker: PengaturanSatker;
   currentUser: AdminUser;
-  onSaveItem: (item: ItemATK) => void;
+  onSaveItem: (
+    item: ItemATK,
+    isEdit?: boolean,
+  ) => Promise<{ success: boolean; message?: string }> | void;
   onDeleteItem: (id: string) => void;
   onAddMasuk: (transaksi: TransaksiMasuk) => void;
   onSaveSatker: (data: PengaturanSatker) => void;
@@ -163,6 +166,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // CRUD Item Modal State
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItemATK | null>(null);
+  const [itemFormError, setItemFormError] = useState<string | null>(null);
   const [itemFormData, setItemFormData] = useState({
     kodeBarang: "",
     namaBarang: "",
@@ -289,6 +293,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Open item modal for creation
   const handleOpenCreateItem = () => {
     setEditingItem(null);
+    setItemFormError(null);
     setItemFormData({
       kodeBarang: `ATK-${Date.now().toString().slice(-4)}`,
       namaBarang: "",
@@ -305,6 +310,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   // Open item modal for edit
   const handleOpenEditItem = (item: ItemATK) => {
     setEditingItem(item);
+    setItemFormError(null);
     setItemFormData({
       kodeBarang: item.kodeBarang,
       namaBarang: item.namaBarang,
@@ -319,17 +325,34 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   };
 
   // Save Item (Create or Update)
-  const handleSaveItemSubmit = (e: React.FormEvent) => {
+  const handleSaveItemSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    if (!itemFormData.namaBarang.trim()) return;
 
+    const cleanKode = itemFormData.kodeBarang.trim();
+    const cleanNama = itemFormData.namaBarang.trim();
+    if (!cleanNama || !cleanKode) return;
+    // Validasi Client-Side: Cek apakah kodeBarang sudah dipakai barang lain
+    const duplicateItem = items.find(
+      (i) =>
+        i.kodeBarang.trim().toLowerCase() === cleanKode.toLowerCase() &&
+        i.id !== editingItem?.id,
+    );
+
+    if (duplicateItem) {
+      setItemFormError(
+        `Kode barang "${cleanKode}" sudah terdaftar untuk "${duplicateItem.namaBarang}". Silakan gunakan kode lain.`,
+      );
+      setIsSubmitting(false);
+      return; // Batalkan submit & jangan tutup modal
+    }
+    setIsSubmitting(true);
     const saved: ItemATK = {
       id: editingItem
         ? editingItem.id
         : `atk-${Date.now().toString().slice(-6)}`,
-      kodeBarang: itemFormData.kodeBarang.trim(),
-      namaBarang: itemFormData.namaBarang.trim(),
+      kodeBarang: cleanKode,
+      namaBarang: cleanNama,
       kategori: itemFormData.kategori,
       satuan: itemFormData.satuan.trim(),
       stok: Number(itemFormData.stok),
@@ -339,9 +362,15 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       updatedAt: new Date().toISOString(),
     };
 
-    onSaveItem(saved);
-    setIsItemModalOpen(false);
+    const result = await onSaveItem(saved, Boolean(editingItem));
     setIsSubmitting(false);
+
+    // Tutup modal hanya jika penyimpanan berhasil
+    if (!result || result.success) {
+      setIsItemModalOpen(false);
+    } else if (result.message) {
+      setItemFormError(result.message);
+    }
   };
 
   // Submit Incoming Stock
@@ -2072,6 +2101,12 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               onSubmit={handleSaveItemSubmit}
               className="p-6 space-y-4 text-xs"
             >
+              {itemFormError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{itemFormError}</span>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="font-semibold text-slate-700">

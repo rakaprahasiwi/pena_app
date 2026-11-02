@@ -208,17 +208,34 @@ export default function App() {
   };
 
   // CRUD Item Handlers
-  const handleSaveItem = async (item: ItemATK) => {
-    await fetch("/api/items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(item),
-    });
-    await loadSemuaData();
-    showToast(
-      "success",
-      `Data barang "${item.namaBarang}" berhasil disimpan ke Database.`,
-    );
+  const handleSaveItem = async (
+    item: ItemATK,
+    isEdit: boolean = false,
+  ): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const res = await fetch("/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...item, isEdit }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        const errMsg = data.message || "Gagal menyimpan data barang.";
+        showToast("alert", errMsg);
+        return { success: false, message: errMsg };
+      }
+
+      await loadSemuaData();
+      showToast(
+        "success",
+        `Data barang "${item.namaBarang}" berhasil disimpan ke Database.`,
+      );
+      return { success: true };
+    } catch (error) {
+      showToast("alert", "Koneksi ke server gagal saat menyimpan barang.");
+      return { success: false, message: "Koneksi ke server gagal." };
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
